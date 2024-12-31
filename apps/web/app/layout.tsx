@@ -13,11 +13,13 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+import { FC, ReactNode } from "react";
+
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
-}>) {
+  children: ReactNode
+}>): JSX.Element {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
