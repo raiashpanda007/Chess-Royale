@@ -1,4 +1,5 @@
 # shadcn/ui monorepo template
+Please add compnents in ui folder and use pnpm as workspace
 
 This template is for creating a monorepo with shadcn/ui.
 
