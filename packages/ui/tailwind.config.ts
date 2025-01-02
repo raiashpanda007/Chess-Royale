@@ -12,8 +12,9 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        sans: ['Poppins', 'ui-sans-serif', 'system-ui'],
         mono: ["var(--font-mono)", ...fontFamily.mono],
+        poppins: ["Poppins", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
