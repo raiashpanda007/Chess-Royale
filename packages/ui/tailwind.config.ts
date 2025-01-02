@@ -13,6 +13,7 @@ const config = {
     extend: {
       fontFamily: {
         sans: ['Poppins', 'ui-sans-serif', 'system-ui'],
+        playfair: ['"Playfair Display"', 'serif'],
         mono: ["var(--font-mono)", ...fontFamily.mono],
         poppins: ["Poppins", "sans-serif"],
       },

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@workspace/ui/components/button";
 import { Logout } from "@mui/icons-material";
 function LoginButton() {
-    const { data: session,status } = useSession();
+    const { status } = useSession();
     
   return (
     <>

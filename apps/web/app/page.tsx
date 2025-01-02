@@ -7,7 +7,7 @@ const Page: FC = () => {
    
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-2xl font-bold">Hello World</h1>
-        <Button size="sm" className="font-sans">Button</Button>
+        <Button size="sm" className="font-pla">Button</Button>
       </div>
     
   )
