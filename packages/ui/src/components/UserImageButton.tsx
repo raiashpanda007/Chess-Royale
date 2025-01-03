@@ -12,8 +12,7 @@ const UserImageButton: React.FC = () => {
     },[session]);
     return (
         <>
-        {
-            status === 'authenticated' && image ? (
+        { image ? (
                 <div className="flex items-center justify-center h-10 w-10 border border-white mr-2 rounded-full">
                     <img src={image} alt="profile" className="w-8 h-8 rounded-full"/>
                 </div>

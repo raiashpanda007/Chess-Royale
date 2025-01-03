@@ -283,6 +283,13 @@
   }
 }
 
+@layer utilities {
+  .bg-chess {
+    background-image: url('https://cdn.pixabay.com/photo/2015/10/11/12/48/chess-982260_1280.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+}
 @layer base {
   * {
     @apply border-border;
