@@ -49,7 +49,11 @@ model Tournament {
   admin           User      @relation("AdminTournaments", fields: [adminId], references: [id])
   adminId         String
   status          StatusTournament
-  scorecard      ScoreCard[]
+  scorecard       ScoreCard[]
+  visibility      Visibility
+  time            Int
+  AddedTime       Int
+  logo            String?
 }
 
 model Round {
@@ -75,7 +79,8 @@ model Match {
   round         Round?     @relation(fields: [roundId], references: [id])
   roundId       String?
   status        StatusMatch
-  timer         Int
+  time          Int
+  AddedTime     Int
 }
 
 model SoloGame {
@@ -121,4 +126,9 @@ enum StatusTournament {
   FILLED
   START
   FINISH
+}
+
+enum Visibility{
+  PUBLIC
+  PRIVATE
 }

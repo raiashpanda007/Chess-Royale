@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 import GoogleProvider from "next-auth/providers/google";
 const NEXT_AUTH_CONFIG = {
   providers: [
+    // Providers configuration remains the same
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -13,37 +14,47 @@ const NEXT_AUTH_CONFIG = {
       async authorize(credentials: any) {
         try {
           const user = await prisma.user.findFirst({
-            where:{
-              OR:[{
-                email: credentials.username
-              },{username: credentials.username}]
-            },select:{
-              password:true,
-              profilePicture:true,
-              id:true,
-              email:true,
-              username:true,
+            where: {
+              OR: [
+                { email: credentials.username },
+                { username: credentials.username },
+              ],
+            },
+            select: {
+              password: true,
+              profilePicture: true,
+              id: true,
+              email: true,
+              username: true,
+            },
+          });
+          if (user) {
+            if (credentials.password === user.password) {
+              return {
+                id: user.id,
+                email: user.email,
+                profilePicture: user.profilePicture,
+                username: user.username,
+              };
             }
-          })
-          if(user) {
-            if(credentials.password === user.password) {
-              return {id:user.id,email:user.email, profilePicture:user.profilePicture, username:user.username}
-            }
-            
-          }else{
+          } else {
             const createUser = await prisma.user.create({
-              data:{
-                email:credentials.username,
-                username:credentials.username,
-                password:credentials.password
-              }
+              data: {
+                email: credentials.username,
+                username: credentials.username,
+                password: credentials.password,
+              },
             });
-            return {id:createUser.id,email:createUser.email, profilePicture:createUser.profilePicture, username:createUser.username}
+            return {
+              id: createUser.id,
+              email: createUser.email,
+              profilePicture: createUser.profilePicture,
+              username: createUser.username,
+            };
           }
           return null;
         } catch (error) {
           return null;
-          
         }
       },
     }),
@@ -58,25 +69,25 @@ const NEXT_AUTH_CONFIG = {
       try {
         const providerAccountId = user?.id || token.sub; // Use token.sub as fallback
         const provider = user?.provider || 'GOOGLE';
-    
+
         // Check if user exists in the database
         const existingUser = await prisma.user.findUnique({
           where: { email: token.email },
         });
-    
+
         if (existingUser) {
           // Enrich token with user details
-          token.id = existingUser.id;
+          token.id = existingUser.id; // Consistent field name
           token.username = existingUser.username;
           token.email = existingUser.email;
           token.profilePicture = existingUser.profilePicture;
         } else {
           // Create new user and associated account in a transaction
-          const { createUser, addAccount } = await prisma.$transaction(async (tx) => {
+          const { createUser } = await prisma.$transaction(async (tx) => {
             const createUser = await tx.user.create({
               data: {
                 email: token.email,
-                username: token.email.split('@')[0] + Date.now(), // Generate unique username
+                username: token.email, // Generate unique username
                 profilePicture: token.picture || null,
                 name: token.name || null,
               },
@@ -88,11 +99,11 @@ const NEXT_AUTH_CONFIG = {
                 provider: provider.toUpperCase(),
               },
             });
-            return { createUser, addAccount };
+            return { createUser };
           });
-    
+
           // Enrich token with newly created user details
-          token.id = createUser.id;
+          token.id = createUser.id; // Consistent field name
           token.username = createUser.username;
           token.email = createUser.email;
           token.profilePicture = createUser.profilePicture;
@@ -101,15 +112,20 @@ const NEXT_AUTH_CONFIG = {
       } catch (error) {
         console.error('Error during JWT callback:', error);
       }
-    
+
       return token;
-    },session({ session, token }: any) {
+    },
+    async session({ session, token }: any) {
       if (session.user) {
-        session.user.id = token.uid;
+        session.user.id = token.id; // Correctly reference `id` here
+        session.user.username = token.username;
+        session.user.profilePicture = token.profilePicture;
+        session.user.email = token.email;
       }
       return session;
     },
   },
-}
+};
 
 export default NEXT_AUTH_CONFIG;
+
