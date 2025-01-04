@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,31 +6,119 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model User {
-  id        String   @id @default(cuid())
-  email     String?  @unique
-  username  String?  @unique
-  name      String?
-  password  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  accounts  Account[]
-  profilePicture String?
-}
-model Account {
-  id                String   @id @default(cuid())
-  provider          Provider   // e.g., "google", "github", "email"
-  providerAccountId String   // e.g., Google/GitHub user ID
-  userId            String
-  user              User     @relation(fields: [userId], references: [id])
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+model User {
+  id                String      @id @default(cuid())
+  email             String?     @unique
+  username          String?     @unique
+  name              String?
+  password          String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  profilePicture    String?
+  accounts          Account[]
+  tournaments       Tournament[] @relation("TournamentPlayers")
+  player1Matches    Match[]     @relation("Player1Matches")
+  player2Matches    Match[]     @relation("Player2Matches")
+  adminTournaments  Tournament[] @relation("AdminTournaments")
+  soloGames         SoloGame[]  // Relation for solo games played by the user
+  scoreCards        ScoreCard[] // Relation for score cards of the user
+}
+
+model Account {
+  id                String     @id @default(cuid())
+  provider          Provider   // e.g., "google", "github", "email"
+  providerAccountId String     // e.g., Google/GitHub user ID
+  userId            String
+  user              User       @relation(fields: [userId], references: [id])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@unique([provider, providerAccountId]) // Ensure unique accounts per provider
 }
 
+model Tournament {
+  id              String    @id @default(cuid())
+  name            String
+  numberOfPlayers Int
+  numberOfRounds  Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  users           User[]    @relation("TournamentPlayers")
+  rounds          Round[]
+  admin           User      @relation("AdminTournaments", fields: [adminId], references: [id])
+  adminId         String
+  status          StatusTournament
+  scorecard      ScoreCard[]
+}
+
+model Round {
+  id             String     @id @default(cuid())
+  number         Int
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  tournament     Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId   String
+  matches        Match[]
+}
+
+model Match {
+  id            String     @id @default(cuid())
+  player1Id     String
+  player1       User       @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2Id     String
+  player2       User       @relation("Player2Matches", fields: [player2Id], references: [id])
+  result        Result
+  createdAt     DateTime   @default(now())
+  joiningTIme   DateTime
+  lastTime      DateTime
+  round         Round?     @relation(fields: [roundId], references: [id])
+  roundId       String?
+  status        StatusMatch
+  timer         Int
+}
+
+model SoloGame {
+  id            String     @id @default(cuid())
+  playerId      String
+  player        User       @relation(fields: [playerId], references: [id])
+  score         Int        // Score the player achieved in the solo game
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+}
+model ScoreCard {
+  tournamentId  String
+  tournament    Tournament @relation(fields: [tournamentId], references: [id])
+  playerId      String
+  player        User       @relation(fields: [playerId], references: [id])
+  score         Int        // Score the player achieved in the solo game
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+
+  @@id([tournamentId, playerId])
+}
+
+
 enum Provider {
   GOOGLE
   GITHUB
+}
+
+enum Result {
+  WIN
+  LOSE
+  DRAW
+}
+enum StatusMatch {
+  CREATE 
+  START
+  FINISH
+}
+enum StatusTournament {
+  OPEN
+  FILLED
+  START
+  FINISH
 }
