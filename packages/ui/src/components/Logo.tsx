@@ -17,7 +17,7 @@ const Logo = ({label,type=false}:LogoProps) => {
       />
       <div className="flex items-center justify-center font-playfair font-extrabold w-full h-full bg-black">
         <h1
-          className={type?"text-4xl font-bold text-transparent bg-clip-text":"text-9xl font-bold text-transparent bg-clip-text"}
+          className={type?"text-6xl font-bold text-transparent bg-clip-text":"text-9xl font-bold text-transparent bg-clip-text"}
           style={{
             backgroundImage: "url('https://cdn.pixabay.com/photo/2015/10/11/12/48/chess-982260_1280.jpg')",
             backgroundSize: "cover",
