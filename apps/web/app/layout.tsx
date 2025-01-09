@@ -1,5 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
-
+import {Toaster} from '@workspace/ui/components/sonner'
 import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers";
 import Appbar from "@/components/AppBar";
@@ -28,6 +28,7 @@ export default function RootLayout({
         <Providers>
           <div className="h-screen w-screen overflow-hidden relative">
             <Appbar />
+            <Toaster/>
             {children}
           </div>
         </Providers>

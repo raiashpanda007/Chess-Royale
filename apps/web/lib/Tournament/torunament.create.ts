@@ -4,17 +4,19 @@ import { getServerSession } from 'next-auth';
 import NEXT_AUTH_CONFIG from '../auth';
 import { z as zod } from 'zod';
 import response from '@/app/utils/response';
-
+import findMedia from '@/app/utils/GetMultimedia';
 const prisma = new PrismaClient();
 
 const createTournamentSchema = zod.object({
-    name: zod.string(),
-    numberOfPlayers: zod.number(),
-    logo: zod.string().optional(),
-    visibility: zod.enum([Visibility.PUBLIC, Visibility.PRIVATE]),
-    time: zod.number().min(2, "Time should be between 2 and 180 minutes").max(180),
-    addedTime: zod.number().min(0, "Added Time should be between 0 and 10 minutes").max(10),
+    name: zod.string().nonempty(),
+    numberOfPlayers: zod.string().transform(Number),
+    visibility: zod.enum(["PUBLIC", "PRIVATE"]),
+    time: zod.string().transform(Number),
+    addedTime: zod.string().transform(Number),
+    logo: zod.string().nullable().optional(),
 });
+
+  
 
 async function handleCreateTournament(req: NextRequest) {
     try {
@@ -25,8 +27,9 @@ async function handleCreateTournament(req: NextRequest) {
                 { status: 401 }
             );
         }
-
+        
         const body = await req.json();
+        
         const parsedData = createTournamentSchema.safeParse(body);
 
         if (!parsedData.success) {
@@ -52,7 +55,7 @@ async function handleCreateTournament(req: NextRequest) {
                 },
                 time: data.time,
                 AddedTime: data.addedTime,
-                logo: data.logo,
+                logo: data.logo ? await findMedia(data.logo) : null
             },
         });
 

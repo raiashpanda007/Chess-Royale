@@ -14,7 +14,7 @@ const Page: FC = async () => {
 
   return (
     <div className="h-screen w-full flex justify-evenly items-center flex-col">
-      <h1 className="text-6xl font-poppins font-bold">Create Tournament</h1>
+      <h1 className="text-4xl sm:text-6xl font-poppins font-bold">Create Tournament</h1>
       <CreateTournamentForm />
     </div>
   );
