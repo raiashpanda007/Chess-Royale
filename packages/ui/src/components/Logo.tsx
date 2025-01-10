@@ -6,7 +6,7 @@ interface LogoProps {
 }
 const Logo = ({label,type=false}:LogoProps) => {
   return (
-    <div className={type?"relative  min-w-32 h-16 overflow-hidden" :"relative min-w-96 h-36 overflow-hidden animate-slideInFromBelow opacity-0"}>
+    <div className={type?"relative  min-w-32 h-16 overflow-hidden" :"relative sm:min-w-96 sm:h-36 min-w-32 h-16  overflow-hidden animate-slideInFromBelow opacity-0"}>
       <img
         src="https://cdn.pixabay.com/photo/2015/10/11/12/48/chess-982260_1280.jpg"
         alt="Background"
@@ -17,7 +17,7 @@ const Logo = ({label,type=false}:LogoProps) => {
       />
       <div className="flex items-center justify-center font-playfair font-extrabold w-full h-full bg-black">
         <h1
-          className={type?"text-6xl font-bold text-transparent bg-clip-text":"text-9xl font-bold text-transparent bg-clip-text"}
+          className={type?"text-6xl font-bold text-transparent bg-clip-text":"sm:text-9xl text-6xl font-bold text-transparent bg-clip-text"}
           style={{
             backgroundImage: "url('https://cdn.pixabay.com/photo/2015/10/11/12/48/chess-982260_1280.jpg')",
             backgroundSize: "cover",

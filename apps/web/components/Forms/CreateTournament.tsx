@@ -19,9 +19,6 @@ import {
   RadioGroupItem,
 } from "@workspace/ui/components/radio-group";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Logo from "@workspace/ui/components/Logo";
-import { set } from "zod";
-import response from "@/app/utils/response";
 import { useRouter } from "next/navigation";
 interface FormValues {
   name: string;
@@ -75,7 +72,7 @@ const CreateTournamentForm: FC = () => {
 
       // Step 2: Prepare Payload
       const payload = {
-        name: data.name,
+        name: data.name ,
         numberOfPlayers: data.numberOfPlayers,
         logo: logoKey, // Directly use the key
         visibility: data.visibility,
@@ -85,7 +82,7 @@ const CreateTournamentForm: FC = () => {
 
       // Step 3: Create Tournament
       const createResponse = await axios.post(
-        "http://localhost:3000/api/create-tournament",
+        "http://localhost:3000/api/tournament/create",
         payload
       );
 

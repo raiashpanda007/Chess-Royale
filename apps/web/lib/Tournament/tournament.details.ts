@@ -5,7 +5,7 @@ import { z as zod } from 'zod';
 import NEXT_AUTH_CONFIG from '../auth';
 import response from '@/app/utils/response';
 
-async function getTournamentDetails (req:NextRequest,res:NextResponse){
+async function getTournamentDetails (req:NextRequest){
     const curruser = await getServerSession(NEXT_AUTH_CONFIG);
     if(!curruser){
         return NextResponse.json(

@@ -55,7 +55,6 @@ model Tournament {
   AddedTime       Int
   logo            String?
   slug            String   @unique
-  joinurl             String  @unique
 }
 
 model Round {

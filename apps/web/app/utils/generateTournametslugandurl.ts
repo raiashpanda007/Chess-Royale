@@ -8,9 +8,9 @@ const slugifyTournament = (name:string) =>{
     });
     const uuid = uuidv4();
 
-    const url = `${process.env.BASE_URL}/${slug}-${uuid}`;
+    
     const finalSlug = `${slug}-${uuid}`;
-    return {url, finalSlug};
+    return { finalSlug};
 
 }
 export default slugifyTournament;

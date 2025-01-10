@@ -41,7 +41,7 @@ async function handleCreateTournament(req: NextRequest) {
         }
 
         const data = parsedData.data;
-        const { url, finalSlug } = slugifyTournament(data.name);
+        const {  finalSlug } = slugifyTournament(data.name);
         const tournament = await prisma.tournament.create({
             data: {
                 name: data.name,
@@ -57,7 +57,7 @@ async function handleCreateTournament(req: NextRequest) {
                 time: data.time,
                 AddedTime: data.addedTime,
                 logo: data.logo ? await findMedia(data.logo) : null,
-                joinurl: url,
+                
                 slug: finalSlug,
 
             },
