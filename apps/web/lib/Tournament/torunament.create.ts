@@ -5,6 +5,7 @@ import NEXT_AUTH_CONFIG from '../auth';
 import { z as zod } from 'zod';
 import response from '@/app/utils/response';
 import findMedia from '@/app/utils/GetMultimedia';
+import slugifyTournament from '@/app/utils/generateTournametslugandurl';
 const prisma = new PrismaClient();
 
 const createTournamentSchema = zod.object({
@@ -40,7 +41,7 @@ async function handleCreateTournament(req: NextRequest) {
         }
 
         const data = parsedData.data;
-
+        const { url, finalSlug } = slugifyTournament(data.name);
         const tournament = await prisma.tournament.create({
             data: {
                 name: data.name,
@@ -55,7 +56,10 @@ async function handleCreateTournament(req: NextRequest) {
                 },
                 time: data.time,
                 AddedTime: data.addedTime,
-                logo: data.logo ? await findMedia(data.logo) : null
+                logo: data.logo ? await findMedia(data.logo) : null,
+                joinurl: url,
+                slug: finalSlug,
+
             },
         });
 

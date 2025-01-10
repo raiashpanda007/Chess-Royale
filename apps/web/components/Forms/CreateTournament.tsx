@@ -1,7 +1,7 @@
 "use client";
-import { FC,useState } from "react";
+import { FC, useState } from "react";
 import axios from "axios";
-import SonnerDemo from "../Error/ErrorCard";
+import { toast } from "sonner";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
@@ -22,6 +22,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Logo from "@workspace/ui/components/Logo";
 import { set } from "zod";
 import response from "@/app/utils/response";
+import { useRouter } from "next/navigation";
 interface FormValues {
   name: string;
   numberOfPlayers: number;
@@ -30,8 +31,9 @@ interface FormValues {
   time: number;
   addedTime: number;
 }
-const  CreateTournamentForm: FC = () => {
+const CreateTournamentForm: FC = () => {
   const [error, setError] = useState<any>(null);
+  const router = useRouter();
 
   const {
     register,
@@ -46,7 +48,7 @@ const  CreateTournamentForm: FC = () => {
     try {
       // Step 1: Handle Logo Upload
       let logoKey = null;
-  
+
       if (data.logo && data.logo.length > 0 && data.logo[0]?.type) {
         const uploadResponse = await axios.post(
           "http://localhost:3000/api/upload-file",
@@ -54,11 +56,11 @@ const  CreateTournamentForm: FC = () => {
             key: data.logo[0]?.name,
           }
         );
-  
+
         if (uploadResponse.data) {
           console.log("Upload response:", uploadResponse.data);
           logoKey = uploadResponse.data.data.key;
-  
+
           // Upload file to the provided URL
           await axios.put(uploadResponse.data.data.url, data.logo[0], {
             headers: {
@@ -70,7 +72,7 @@ const  CreateTournamentForm: FC = () => {
           throw new Error("Failed to upload logo");
         }
       }
-  
+
       // Step 2: Prepare Payload
       const payload = {
         name: data.name,
@@ -80,24 +82,47 @@ const  CreateTournamentForm: FC = () => {
         time: data.time,
         addedTime: data.addedTime,
       };
-  
+
       // Step 3: Create Tournament
       const createResponse = await axios.post(
         "http://localhost:3000/api/create-tournament",
         payload
       );
-  
+
       if (createResponse.status === 200) {
         console.log("Tournament created successfully");
+
+        // Trigger the toast here
+        toast("Tournament created successfully", {
+          description: `Tournament ID: ${createResponse.data.data.id}`,
+          className:'font-poppins font-bold text-green-500',
+          action: {
+            label: "View",
+            onClick: () =>
+              router.push(`/tournament/${createResponse.data.data.id}`),
+          },
+        });
+
+        // Navigate to the created tournament's page
+        
       }
     } catch (error) {
       setError(error);
       console.error("Error creating tournament:", error);
+
+      // Trigger a toast for the error
+      toast("Failed to create tournament", {
+        description:  "An unexpected error occurred",
+        className:'font-poppins font-bold text-red-500',
+        action: {
+          label: "Retry",
+          
+          onClick: () => console.log("Retry clicked"),
+        },
+      });
     }
   };
-  
 
-  
   return (
     <Card className="w-full h-2/3 sm:h-1/2 sm:w-1/2">
       <form className="font-poppins h-full" onSubmit={handleSubmit(onSubmit)}>
@@ -151,10 +176,7 @@ const  CreateTournamentForm: FC = () => {
                 <Label htmlFor="visibility" className="font-bold">
                   Visibility of your tournament
                 </Label>
-                <RadioGroup
-                  defaultValue="PRIVATE"
-                  {...register("visibility")}
-                >
+                <RadioGroup defaultValue="PRIVATE" {...register("visibility")}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="PRIVATE" id="option-one" />
                     <Label htmlFor="option-one">Private</Label>
@@ -198,7 +220,11 @@ const  CreateTournamentForm: FC = () => {
           </CardContent>
         </ScrollArea>
         <CardFooter className="flex justify-end">
-          <Button className="font-poppins font-extrabold" type="submit"  onClick={()=> console.log("Create Tournament")}>
+          <Button
+            className="font-poppins font-extrabold"
+            type="submit"
+            onClick={() => console.log("Create Tournament")}
+          >
             Create Tournament
           </Button>
         </CardFooter>
