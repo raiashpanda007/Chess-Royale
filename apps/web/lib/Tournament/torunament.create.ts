@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, Visibility } from '@workspace/db';
+import { PrismaClient } from '@workspace/db';
 import { getServerSession } from 'next-auth';
 import NEXT_AUTH_CONFIG from '../auth';
 import { z as zod } from 'zod';
