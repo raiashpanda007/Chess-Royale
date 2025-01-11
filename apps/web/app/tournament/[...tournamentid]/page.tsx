@@ -74,7 +74,7 @@ const Page: FC = () => {
         </div>
       </div>
       <div className="w-full mt-6 flex p-3" style={{ height: "calc(100% - 80px)" }}>
-          <div className="h-28 w-1/3 rounded-lg shadow-md p-3 flex justify-center items-center border ">
+          <div className="h-24 w-1/3 rounded-lg shadow-md p-3 flex justify-center items-center border ">
               <p>{tournament?.slug}</p>
               <CopyButton data={tournament?.slug || ""} />
           </div>
