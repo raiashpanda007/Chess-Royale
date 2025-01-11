@@ -6,6 +6,14 @@ import axios from "axios";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Button } from "@workspace/ui/components/button";
 import CopyButton from "@workspace/ui/components/CopyButton";
+import TabsDemo from "@/components/MacthesList/Tournament";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select";
 const Page: FC = () => {
   const { tournamentid } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,7 +60,10 @@ const Page: FC = () => {
               <h1 className="font-poppins text-5xl font-bold">
                 {tournament?.name}
               </h1>
-              <Button variant={"destructive"} className="font-poppins font-bold">
+              <Button
+                variant={"destructive"}
+                className="font-poppins font-bold"
+              >
                 Delete Tournament
               </Button>
             </div>
@@ -62,7 +73,9 @@ const Page: FC = () => {
           ) : (
             <div className="h-1/3 w-full ">
               <p className="flex space-x-2 w-1/2">
-                <span className="font-2xl font-semibold mr-2">Tournament ID </span>
+                <span className="font-2xl font-semibold mr-2">
+                  Tournament ID{" "}
+                </span>
                 {tournament?.admin.id}
               </p>
               <p className="flex space-x-2 w-1/2">
@@ -73,11 +86,26 @@ const Page: FC = () => {
           )}
         </div>
       </div>
-      <div className="w-full mt-6 flex p-3" style={{ height: "calc(100% - 80px)" }}>
-          <div className="h-24 w-1/3 rounded-lg shadow-md p-3 flex justify-center items-center border ">
-              <p>{tournament?.slug}</p>
-              <CopyButton data={tournament?.slug || ""} />
+      <div className="w-full mt-6  p-3" style={{ height: "calc(100% - 80px)" }}>
+        <div className="h-24 w-1/3 rounded-lg shadow-md p-3 flex justify-center items-center border ">
+          <p>{tournament?.slug}</p>
+          <CopyButton data={tournament?.slug || ""} />
+        </div>
+        <div className="w-full h-full p-3 flex flex-col items-center ">
+          <div className="w-full h-16 flex justify-end border border:white">
+            <Select>
+              <SelectTrigger className="w-[180px] font-poppins font-semibold">
+                <SelectValue placeholder="Round" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <TabsDemo />
+        </div>
       </div>
     </div>
   );

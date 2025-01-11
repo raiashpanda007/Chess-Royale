@@ -75,7 +75,7 @@ model Match {
   player2       User       @relation("Player2Matches", fields: [player2Id], references: [id])
   result        Result
   createdAt     DateTime   @default(now())
-  joiningTIme   DateTime
+
   lastTime      DateTime
   round         Round?     @relation(fields: [roundId], references: [id])
   roundId       String?
@@ -116,9 +116,10 @@ enum Result {
   WIN
   LOSE
   DRAW
+  NOT_PLAYED
 }
 enum StatusMatch {
-  CREATE 
+  CREATED
   START
   FINISH
 }
