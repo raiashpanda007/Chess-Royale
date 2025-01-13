@@ -8,6 +8,7 @@ import { Button } from "@workspace/ui/components/button";
 import CopyButton from "@workspace/ui/components/CopyButton";
 import TabsDemo from "@/components/MacthesList/Tournament";
 import { useRouter } from "next/navigation";
+import DeleteDialog from "@/components/Forms/DeleteDialog";
 import {
   Select,
   SelectContent,
@@ -20,24 +21,7 @@ const Page: FC = () => {
   const { tournamentid } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [tournament, setTournament] = useState<Tournament>();
-  const deleteTournament = async () => {
-    try {
-      const repsonse = await axios.delete(
-        "http://localhost:3000/api/tournament/delete",
-        {
-          headers: {
-            tournamentid: tournamentid,
-          },
-        }
-      );
-      if(repsonse.status === 200){
-        router.push("/");
-      }
-    } catch (error) {
-      console.log(error);
-
-    }
-  };
+  
   const fetchTournament = async () => {
     const repsonse = await axios.get(
       `http://localhost:3000/api/tournament/fetch`,
@@ -81,13 +65,7 @@ const Page: FC = () => {
                 {tournament?.name}
               </h1>
               <div className="flex justify-between">
-                <Button
-                  variant={"destructive"}
-                  className="font-poppins font-bold"
-                  onClick={deleteTournament}
-                >
-                  Delete Tournament
-                </Button>
+                <DeleteDialog tournamentid={tournamentid}/>
               </div>
             </div>
           )}
