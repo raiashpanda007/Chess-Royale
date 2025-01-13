@@ -1,18 +1,20 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient } from '@workspace/db/';
+import GoogleProvider from 'next-auth/providers/google';
+import { PrismaClient } from '@workspace/db';
+
 const prisma = new PrismaClient();
-import GoogleProvider from "next-auth/providers/google";
+
 const NEXT_AUTH_CONFIG = {
   providers: [
-    // Providers configuration remains the same
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        username: { label: 'UserName', type: 'text', placeholder: 'Enter Username/Email' },
+        username: { label: 'Username or Email', type: 'text', placeholder: 'Enter Username/Email' },
         password: { label: 'Password', type: 'password', placeholder: 'Enter Password' },
       },
       async authorize(credentials: any) {
         try {
+          // Find user by email or username
           const user = await prisma.user.findFirst({
             where: {
               OR: [
@@ -21,111 +23,104 @@ const NEXT_AUTH_CONFIG = {
               ],
             },
             select: {
-              password: true,
-              profilePicture: true,
               id: true,
               email: true,
               username: true,
+              profilePicture: true,
+              password: true,
             },
           });
+
           if (user) {
+            // Validate password directly
             if (credentials.password === user.password) {
               return {
                 id: user.id,
                 email: user.email,
+                username: user.username || user.email,
                 profilePicture: user.profilePicture,
-                username: user.username,
               };
+            } else {
+              throw new Error('Invalid username or password');
             }
           } else {
-            const createUser = await prisma.user.create({
+            // Create a new user if not found
+            const newUser = await prisma.user.create({
               data: {
                 email: credentials.username,
-                username: credentials.username,
+                username: credentials.username || credentials.email,
                 password: credentials.password,
               },
             });
+
             return {
-              id: createUser.id,
-              email: createUser.email,
-              profilePicture: createUser.profilePicture,
-              username: createUser.username,
+              id: newUser.id,
+              email: newUser.email,
+              username: newUser.username,
+              profilePicture: newUser.profilePicture,
             };
           }
-          return null;
         } catch (error) {
+          console.error('Authorization error:', error);
           return null;
         }
       },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || ' ',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ user, token }: any) {
-      try {
-        const providerAccountId = user?.id || token.sub; // Use token.sub as fallback
-        const provider = user?.provider || 'GOOGLE';
-
-        // Check if user exists in the database
-        const existingUser = await prisma.user.findUnique({
-          where: { email: token.email },
-        });
-
-        if (existingUser) {
-          // Enrich token with user details
-          token.id = existingUser.id; // Consistent field name
-          token.username = existingUser.username;
-          token.email = existingUser.email;
-          token.profilePicture = existingUser.profilePicture;
-        } else {
-          // Create new user and associated account in a transaction
-          const { createUser } = await prisma.$transaction(async (tx) => {
-            const createUser = await tx.user.create({
-              data: {
-                email: token.email,
-                username: token.email, // Generate unique username
-                profilePicture: token.picture || null,
-                name: token.name || null,
-              },
-            });
-            const addAccount = await tx.account.create({
-              data: {
-                userId: createUser.id,
-                providerAccountId: providerAccountId,
-                provider: provider.toUpperCase(),
-              },
-            });
-            return { createUser };
+    async jwt({ user, token, account, profile }: any) {
+      if (account && profile) {
+        // Check if this is a Google login
+        if (account.provider === 'google') {
+          const email = profile.email;
+          const existingUser = await prisma.user.findUnique({
+            where: { email },
           });
-
-          // Enrich token with newly created user details
-          token.id = createUser.id; // Consistent field name
-          token.username = createUser.username;
-          token.email = createUser.email;
-          token.profilePicture = createUser.profilePicture;
-          token.name = createUser.name;
+  
+          // If the user doesn't exist in the database, create it
+          if (!existingUser) {
+            const newUser = await prisma.user.create({
+              data: {
+                email,
+                username: profile.name || email.split('@')[0], // Use name or fallback to email
+                profilePicture: profile.picture || '', // Use Google profile picture
+                
+              },
+            });
+            console.log('New user:', newUser);
+            token.id = newUser.id; // Use Prisma `id`
+          } else {
+            console.log('Existing user:', existingUser);
+            token.id = existingUser.id; // Use existing Prisma `id`
+          }
         }
-      } catch (error) {
-        console.error('Error during JWT callback:', error);
       }
-
+  
+      if (user) {
+        console.log('User token:', token);
+        token.id = user.id; // For CredentialsProvider
+      }
+  
       return token;
     },
+  
     async session({ session, token }: any) {
+      console.log('Session token:', token);
       if (session.user) {
-        session.user.id = token.id; // Correctly reference `id` here
+        session.user.id = token.id; // Use Prisma `id`
+        session.user.email = token.email;
         session.user.username = token.username;
         session.user.profilePicture = token.profilePicture;
-        session.user.email = token.email;
       }
       return session;
     },
   },
+  
 };
 
 export default NEXT_AUTH_CONFIG;
-

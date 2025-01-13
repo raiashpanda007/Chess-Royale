@@ -43,82 +43,56 @@ const CreateTournamentForm: FC = () => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      // Step 1: Handle Logo Upload
-      let logoKey = null;
+        console.log("Form Data:", data);
 
-      if (data.logo && data.logo.length > 0 && data.logo[0]?.type) {
-        const uploadResponse = await axios.post(
-          "http://localhost:3000/api/upload-file",
-          {
-            key: data.logo[0]?.name,
-          }
-        );
+        let logoKey = null;
+        if (data.logo && data.logo.length > 0 && data.logo[0]?.type) {
+            const uploadResponse = await axios.post("/api/upload-file", {
+                key: data.logo[0]?.name,
+            });
 
-        if (uploadResponse.data) {
-          console.log("Upload response:", uploadResponse.data);
-          logoKey = uploadResponse.data.data.key;
+            if (uploadResponse.data) {
+                console.log("Upload response:", uploadResponse.data);
+                logoKey = uploadResponse.data.data.key;
 
-          // Upload file to the provided URL
-          await axios.put(uploadResponse.data.data.url, data.logo[0], {
-            headers: {
-              "Content-Type": data.logo[0].type,
-            },
-          });
-          console.log("Logo uploaded successfully");
-        } else {
-          throw new Error("Failed to upload logo");
+                await axios.put(uploadResponse.data.data.url, data.logo[0], {
+                    headers: { "Content-Type": data.logo[0].type },
+                });
+            }
         }
-      }
 
-      // Step 2: Prepare Payload
-      const payload = {
-        name: data.name ,
-        numberOfPlayers: data.numberOfPlayers,
-        logo: logoKey, // Directly use the key
-        visibility: data.visibility,
-        time: data.time,
-        addedTime: data.addedTime,
-      };
+        const payload = {
+            name: data.name,
+            numberOfPlayers: data.numberOfPlayers,
+            logo: logoKey,
+            visibility: data.visibility,
+            time: data.time,
+            addedTime: data.addedTime,
+        };
 
-      // Step 3: Create Tournament
-      const createResponse = await axios.post(
-        "http://localhost:3000/api/tournament/create",
-        payload
-      );
+        console.log("Payload for tournament creation:", payload);
 
-      if (createResponse.status === 200) {
-        console.log("Tournament created successfully");
+        const createResponse = await axios.post("/api/tournament/create", payload);
 
-        // Trigger the toast here
-        toast("Tournament created successfully", {
-          description: `Tournament ID: ${createResponse.data.data.id}`,
-          className:'font-poppins font-bold text-green-500',
-          action: {
-            label: "View",
-            onClick: () =>
-              router.push(`/tournament/${createResponse.data.data.id}`),
-          },
-        });
-
-        // Navigate to the created tournament's page
-        
-      }
+        if (createResponse.status === 200) {
+            toast("Tournament created successfully", {
+                description: `Tournament ID: ${createResponse.data.data.id}`,
+                action: {
+                    label: "View",
+                    onClick: () =>
+                        router.push(`/tournament/${createResponse.data.data.id}`),
+                },
+            });
+        }
     } catch (error) {
-      setError(error);
-      console.error("Error creating tournament:", error);
-
-      // Trigger a toast for the error
-      toast("Failed to create tournament", {
-        description:  "An unexpected error occurred",
-        className:'font-poppins font-bold text-red-500',
-        action: {
-          label: "Retry",
-          
-          onClick: () => console.log("Retry clicked"),
-        },
-      });
+        console.error("Error during tournament creation:", error);
+        toast("Failed to create tournament", {
+            description: "An unexpected error occurred",
+            action: { label: "Retry", onClick: () => console.log("Retry clicked") },
+        });
     }
-  };
+};
+
 
   return (
     <Card className="w-full h-2/3 sm:h-1/2 sm:w-1/2">

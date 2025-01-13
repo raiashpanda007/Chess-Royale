@@ -18,10 +18,10 @@ const createTournamentSchema = zod.object({
 });
 
   
-
 async function handleCreateTournament(req: NextRequest) {
     try {
         const currUser = await getServerSession(NEXT_AUTH_CONFIG);
+        console.log(currUser)
         if (!currUser) {
             return NextResponse.json(
                 new response(401, "Unauthorized", {}),
@@ -30,18 +30,20 @@ async function handleCreateTournament(req: NextRequest) {
         }
         
         const body = await req.json();
-        
-        const parsedData = createTournamentSchema.safeParse(body);
+        console.log("Request body:", body);
 
+        const parsedData = createTournamentSchema.safeParse(body);
         if (!parsedData.success) {
+            console.error("Zod parsing error:", parsedData.error);
             return NextResponse.json(
-                new response(400, "Invalid Data", parsedData.error),
+                new response(400, "Invalid Data", { error: parsedData.error }),
                 { status: 400 }
             );
         }
 
         const data = parsedData.data;
-        const {  finalSlug } = slugifyTournament(data.name);
+        const { finalSlug } = slugifyTournament(data.name);
+
         const tournament = await prisma.tournament.create({
             data: {
                 name: data.name,
@@ -49,17 +51,15 @@ async function handleCreateTournament(req: NextRequest) {
                 status: "OPEN",
                 numberOfRounds: 0,
                 visibility: data.visibility,
-                admin:{
-                    connect:{
-                        id: currUser.user.id
-                    }
+                admin: {
+                    connect: {
+                        id: currUser.user.id,
+                    },
                 },
                 time: data.time,
                 AddedTime: data.addedTime,
                 logo: data.logo ? await findMedia(data.logo) : null,
-                
                 slug: finalSlug,
-
             },
         });
 
@@ -68,12 +68,13 @@ async function handleCreateTournament(req: NextRequest) {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error creating tournament:", error);
+        
         return NextResponse.json(
-            new response(500, "Failed to create tournament", {}),
+            new response(500, "Failed to create tournament", { error: error }),
             { status: 500 }
         );
     }
 }
+
 
 export default handleCreateTournament;
