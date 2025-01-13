@@ -15,11 +15,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
-
+import ScoreCardList from "./ScoreCardList";
 import MatchList from "./Matches";
 import Email from "next-auth/providers/email";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 
-function TabsDemo() {
+import { FC } from "react";
+
+const TabsDemo: FC = () => {
   const user1 = {
     id: "1",
     name: "John Doe",
@@ -43,44 +46,135 @@ function TabsDemo() {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="match">
-        <MatchList
-          id="1"
-          AddedTime="1"
-          time="10"
-          joiningTime="2"
-          player1={user1}
-          player2={user2}
-          createdAt="2022"
-          round={{ roundid: "1", roundNumber: 2 }}
-          lastTime="21:00"
-          result={"NOT_DECIDED"}
-          status="CREATED"
-        />
+        <ScrollArea className="w-full h-96 overflow-auto">
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+
+          <MatchList
+            id="1"
+            AddedTime="1"
+            time="10"
+            joiningTime="2"
+            player1={user1}
+            player2={user2}
+            createdAt="2022"
+            round={{ roundid: "1", roundNumber: 2 }}
+            lastTime="21:00"
+            result={"NOT_DECIDED"}
+          />
+        </ScrollArea>
       </TabsContent>
       <TabsContent value="scorecard">
-        <Card>
-          <CardHeader>
-            <CardTitle>Password</CardTitle>
-            <CardDescription>
-              Change your password here. After saving, you'll be logged out.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-1">
-              <Label htmlFor="current">Current password</Label>
-              <Input id="current" type="password" />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="new">New password</Label>
-              <Input id="new" type="password" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Save password</Button>
-          </CardFooter>
-        </Card>
+        <ScrollArea className="w-full h-96 overflow-auto">
+          <ScoreCardList id="1" user={user1} score={1} />
+          <ScoreCardList id="2" user={user2} score={0} />
+          <ScoreCardList id="1" user={user1} score={1} />
+          <ScoreCardList id="2" user={user2} score={0} />
+          <ScoreCardList id="1" user={user1} score={1} />
+          <ScoreCardList id="2" user={user2} score={0} />
+          <ScoreCardList id="1" user={user1} score={1} />
+          <ScoreCardList id="2" user={user2} score={0} />
+          <ScoreCardList id="1" user={user1} score={1} />
+          <ScoreCardList id="2" user={user2} score={0} />
+          <ScoreCardList id="1" user={user1} score={1} />
+          <ScoreCardList id="2" user={user2} score={0} />
+        </ScrollArea>
       </TabsContent>
     </Tabs>
   );
-}
+};
 export default TabsDemo;

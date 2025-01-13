@@ -75,11 +75,9 @@ model Match {
   player2       User       @relation("Player2Matches", fields: [player2Id], references: [id])
   result        Result
   createdAt     DateTime   @default(now())
-
   lastTime      DateTime
   round         Round?     @relation(fields: [roundId], references: [id])
   roundId       String?
-  status        StatusMatch
   time          Int
   AddedTime     Int
 }
@@ -113,16 +111,13 @@ enum Provider {
 }
 
 enum Result {
-  WIN
+  WINNER1
+  WINNER2
   LOSE
   DRAW
   NOT_PLAYED
 }
-enum StatusMatch {
-  CREATED
-  START
-  FINISH
-}
+
 enum StatusTournament {
   OPEN
   FILLED
