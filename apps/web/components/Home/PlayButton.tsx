@@ -13,7 +13,7 @@ function PlayButton() {
     <div className="w-1/2 flex justify-evenly animate-slideInFromBelow opacity-0 ">
       <Button
         variant={"secondary"}
-        className="font-poppins font-bold "
+        className="font-poppins font-bold"
         onClick={() => router.replace("https://google.com")}
       >
         Play Solo

@@ -10,7 +10,7 @@ import {
 } from '@workspace/ui/components/dialog'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
-function PlayRoyale() {
+function PlayRoyale(): JSX.Element {
   const router = useRouter()
   return (
     <Dialog>
@@ -27,7 +27,7 @@ function PlayRoyale() {
         
         <DialogFooter className='flex w-full justify-evenly'>
           <Button type="submit" className='font-poppins font-bold' onClick={()=> router.push('tournament/create')}>Create Tournament</Button>
-          <Button variant="secondary" className='font-poppins font-bold'> Join Tournament </Button>
+          <Button variant="secondary" className='font-poppins font-bold' onClick={()=>router.push('/jointournament')}> Join Tournament </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
