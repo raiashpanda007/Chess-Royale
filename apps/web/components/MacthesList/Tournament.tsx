@@ -159,7 +159,7 @@ const TabsDemo: FC = () => {
         </ScrollArea>
       </TabsContent>
       <TabsContent value="scorecard">
-        <ScrollArea className="w-full h-96 overflow-auto">
+        <ScrollArea className="w-full  h-96 overflow-auto">
           <ScoreCardList id="1" user={user1} score={1} />
           <ScoreCardList id="2" user={user2} score={0} />
           <ScoreCardList id="1" user={user1} score={1} />

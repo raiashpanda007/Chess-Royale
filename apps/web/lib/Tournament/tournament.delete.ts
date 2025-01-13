@@ -1,7 +1,7 @@
 import {z as zod } from 'zod'
 import response from '@/app/utils/response'
 const deleteTournamentSchema = zod.object({
-    tournamentId: zod.string().nonempty(),
+    tournamentid: zod.string().nonempty(),
     
 })
 import NEXT_AUTH_CONFIG from '../auth'
@@ -18,19 +18,17 @@ async function deleteTournament (req:NextRequest){
         );
     }
     const prisma = new PrismaClient();
-    const body = await req.json();
-    const parsedData = deleteTournamentSchema.safeParse(body);
-    if(!parsedData.success){
+    const tournamentid =  req.headers.get('tournamentid');
+    if(!tournamentid){
         return NextResponse.json(
-            new response(400,"Invalid Data",parsedData.error),
+            new response(400,"Bad Request",{message:"tournamentid is required"}),
             {status:400}
         );
     }
-    const data = parsedData.data;
     try {
         const tournamentDetails = await prisma.tournament.findUnique({
             where:{
-                id:data.tournamentId
+                id:tournamentid
             }
         });
         if(!tournamentDetails){
@@ -41,7 +39,7 @@ async function deleteTournament (req:NextRequest){
         }
         const deleteTournament = tournamentDetails.adminId === curruser.user.id ? await prisma.tournament.delete({
             where:{
-                id:data.tournamentId
+                id:tournamentid
             }
         }) : NextResponse.json(
             new response(403,"Forbidden to delete a tournament",{}),

@@ -7,6 +7,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Button } from "@workspace/ui/components/button";
 import CopyButton from "@workspace/ui/components/CopyButton";
 import TabsDemo from "@/components/MacthesList/Tournament";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -15,9 +16,28 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 const Page: FC = () => {
+  const router = useRouter();
   const { tournamentid } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [tournament, setTournament] = useState<Tournament>();
+  const deleteTournament = async () => {
+    try {
+      const repsonse = await axios.delete(
+        "http://localhost:3000/api/tournament/delete",
+        {
+          headers: {
+            tournamentid: tournamentid,
+          },
+        }
+      );
+      if(repsonse.status === 200){
+        router.push("/");
+      }
+    } catch (error) {
+      console.log(error);
+
+    }
+  };
   const fetchTournament = async () => {
     const repsonse = await axios.get(
       `http://localhost:3000/api/tournament/fetch`,
@@ -60,12 +80,15 @@ const Page: FC = () => {
               <h1 className="font-poppins text-5xl font-bold">
                 {tournament?.name}
               </h1>
-              <Button
-                variant={"destructive"}
-                className="font-poppins font-bold"
-              >
-                Delete Tournament
-              </Button>
+              <div className="flex justify-between">
+                <Button
+                  variant={"destructive"}
+                  className="font-poppins font-bold"
+                  onClick={deleteTournament}
+                >
+                  Delete Tournament
+                </Button>
+              </div>
             </div>
           )}
           {loading ? (
@@ -74,7 +97,7 @@ const Page: FC = () => {
             <div className="h-1/3 w-full ">
               <p className="flex space-x-2 w-1/2">
                 <span className="font-2xl font-semibold mr-2">
-                  Tournament ID{" "}
+                  Tournament ID
                 </span>
                 {tournament?.admin.id}
               </p>
@@ -92,7 +115,7 @@ const Page: FC = () => {
           <CopyButton data={tournament?.slug || ""} />
         </div>
         <div className="w-full h-full p-3 flex flex-col items-center ">
-          <div className="w-full h-16 flex justify-end border border:white">
+          <div className="w-full h-16 flex justify-between border border:white">
             <Select>
               <SelectTrigger className="w-[180px] font-poppins font-semibold">
                 <SelectValue placeholder="Round" />
@@ -103,6 +126,10 @@ const Page: FC = () => {
                 <SelectItem value="3">3</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button className="font-poppins font-bold">
+              Generate Next Round
+            </Button>
           </div>
           <TabsDemo />
         </div>
