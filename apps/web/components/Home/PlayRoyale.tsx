@@ -27,7 +27,7 @@ function PlayRoyale(): JSX.Element {
         
         <DialogFooter className='flex w-full justify-evenly'>
           <Button type="submit" className='font-poppins font-bold' onClick={()=> router.push('tournament/create')}>Create Tournament</Button>
-          <Button variant="secondary" className='font-poppins font-bold' onClick={()=>router.push('/jointournament')}> Join Tournament </Button>
+          <Button variant="secondary" className='font-poppins font-bold' onClick={()=>router.push('/tournament/join')}> Join Tournament </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

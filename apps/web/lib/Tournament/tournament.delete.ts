@@ -1,9 +1,6 @@
 import {z as zod } from 'zod'
 import response from '@/app/utils/response'
-const deleteTournamentSchema = zod.object({
-    tournamentid: zod.string().nonempty(),
-    
-})
+import deleteFile from '@/app/utils/deletefile'
 import NEXT_AUTH_CONFIG from '../auth'
 import { PrismaClient } from '@workspace/db'
 import { getServerSession } from 'next-auth'
@@ -37,6 +34,8 @@ async function deleteTournament (req:NextRequest){
                 {status:404}
             );
         }
+        if(tournamentDetails.logo ) await deleteFile(tournamentDetails.logo);
+        console.log("Logo is deleted");
         const deleteTournament = tournamentDetails.adminId === curruser.user.id ? await prisma.tournament.delete({
             where:{
                 id:tournamentid
