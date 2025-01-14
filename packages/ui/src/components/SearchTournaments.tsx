@@ -7,7 +7,7 @@ function SearchTournaments() {
     <
 
     >
-      <Input placeholder="Enter the tournament name " />
+      <Input className="w-2/3" placeholder="Enter the tournament name " />
       <Button variant="default" className="font-poppins font-semibold flex">
          <SearchIcon  />
       </Button>

@@ -4,9 +4,10 @@ interface LogoProps {
   type:boolean
   
 }
+
 const Logo = ({label,type=false}:LogoProps) => {
   return (
-    <div className={type?"relative  min-w-32 h-16 overflow-hidden" :"relative sm:min-w-96 sm:h-36 min-w-32 h-16  overflow-hidden animate-slideInFromBelow opacity-0"}>
+    <div className={type?"relative  min-w-32 h-16 overflow-hidden" :"relative sm:min-w-96 sm:h-36 min-w-32 h-16  overflow-hidden animate-slideInFromBelow opacity-0"} >
       <img
         src="https://cdn.pixabay.com/photo/2015/10/11/12/48/chess-982260_1280.jpg"
         alt="Background"

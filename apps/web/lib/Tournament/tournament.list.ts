@@ -6,15 +6,22 @@ import response from "@/app/utils/response";
 
 const prisma = new PrismaClient();
 async function getTournamentsList(req:NextRequest) {
-    // const curruser = await getServerSession(NEXT_AUTH_CONFIG);
-    // if (!curruser) {
-    //     return NextResponse.redirect('/api/auth/signin');
+    const curruser = await getServerSession(NEXT_AUTH_CONFIG);
+    if (!curruser) {
+        return NextResponse.redirect('/api/auth/signin');
 
-    // }
+    }
     try {
         const getTournamentsList = await prisma.tournament.findMany({
             where:{
                 visibility: "PUBLIC"
+            },
+            include:{
+                users:{
+                    select:{
+                        id:true
+                    }
+                }
             }
         })
         console.log(getTournamentsList)

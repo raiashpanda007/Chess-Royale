@@ -28,60 +28,73 @@ async function joinTournament(req: NextRequest) {
     }
     const prisma = new PrismaClient();
     try {
-        const tournamentDetails = await prisma.tournament.findUnique({
-            where: {
-                id: parsedData.data.tournamentId,
-            },
-            include: {
-                users: true,
-            },
-        });
-        if(!tournamentDetails) {
-            return NextResponse.json(
-                new response(400,"Can't Find the tournament",{}),{
-                    status: 400
-                }
-            )
-        }
-        if(tournamentDetails.users.find((user) => user.id === curruser.user.id)){
-            return NextResponse.json(
-                new response(400,"You have already joined the tournament",{}),{
-                    status: 400
-                }
-            )
-        }
-        const updateTournament = await prisma.tournament.update({
-            where: {
-                id: parsedData.data.tournamentId,
-            },
-            data: {
-                users: {
-                    connect: {
-                        id: curruser.user.id,
+        const result = await prisma.$transaction(async (tx) => {
+            // Lock the tournament row for updates
+            const tournamentDetails = await tx.tournament.findUnique({
+                where: {
+                    slug: parsedData.data.tournamentId,
+                },
+                include: {
+                    users: true,
+                },
+            });
+            if(!tournamentDetails)
+            return new response(400,"Invalid Slug" ,{})
+
+            // Check if the user is already part of the tournament
+            if (tournamentDetails.users.find((user) => user.id === curruser.user.id)) {
+                return new response(200, "Already Joined", tournamentDetails);
+            }
+
+            // Check if the number of players exceeds the limit
+            if (tournamentDetails.users.length >= tournamentDetails.numberOfPlayers) {
+                await tx.tournament.update({
+                    where: {
+                        id: tournamentDetails.id,
+                    },
+                    data: {
+                        status: "FILLED",
+                    },
+                })
+                return new response(400, "Tournament Full", {
+                    message: "The tournament has reached its maximum number of players",
+                });
+            }
+
+            // Add the user to the tournament
+            const res  = await tx.tournament.update({
+                where: {
+                    id: tournamentDetails.id,
+                },
+                data: {
+                    users: {
+                        connect: {
+                            id: curruser.user.id,
+                        },
                     },
                 },
-            },include:{
-                users:{
-                    select:{
-                        id:true,
-                        name:true,
-                        username:true,
-                        email:true,
-                    }
-                }
+            });
+            return new response(200, "Success", res);
+        })
 
-            }
-        });
+        if (!result || !result.success) {
+            return NextResponse.json(
+                new response(400, "Failed to join the tournament", {result:result?.data?.toLocaleString()}),
+                { status: 400 }
+            );
+        }
+
         return NextResponse.json(
-            new response(200, "Successfully joined the tournament", {
-                updateTournament,
-            }),
+            new response(200, "You have successfully joined the tournament",
+                result.data,
+            ),
             { status: 200 }
         );
         
     } catch (error) {
+        console.error("Error joining tournament:", error);
         return NextResponse.json(
-            new response(500, "Internal Server Error", { error }),
+            new response(500, "Internal server error", {error}),
             { status: 500 }
         );
         

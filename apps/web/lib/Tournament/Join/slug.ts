@@ -33,65 +33,72 @@ async function joinTournament(req: NextRequest) {
 
     const prisma = new PrismaClient();
     try {
-        const tournamentDetails = await prisma.tournament.findUnique({
-            where: {
-                slug: parsedData.data.slug,
-            },
-            include: {
-                users: true,
-            },
-        });
+        const result = await prisma.$transaction(async (tx) => {
+            // Lock the tournament row for updates
+            const tournamentDetails = await tx.tournament.findUnique({
+                where: {
+                    slug: parsedData.data.slug,
+                },
+                include: {
+                    users: true,
+                },
+            });
+            if(!tournamentDetails)
+            return new response(400,"Invalid Slug" ,{})
 
-        if (!tournamentDetails) {
-            return NextResponse.json(
-                new response(404, "Not found", { message: "Tournament not found" }),
-                { status: 404 }
-            );
-        }
+            // Check if the user is already part of the tournament
+            if (tournamentDetails.users.find((user) => user.id === curruser.user.id)) {
+                return new response(200, "Already Joined", tournamentDetails);
+            }
 
-        if (tournamentDetails.users.find((user) => user.id === curruser.user.id)) {
-            return NextResponse.json(
-                new response(200, "Already Joined", {
-                    message: "You have already joined the tournament",
-                }),
-                { status: 200 }
-            );
-        }
+            // Check if the number of players exceeds the limit
+            if (tournamentDetails.users.length >= tournamentDetails.numberOfPlayers) {
+                await tx.tournament.update({
+                    where: {
+                        id: tournamentDetails.id,
+                    },
+                    data: {
+                        status: "FILLED",
+                    },
+                })
+                return new response(400, "Tournament Full", {
+                    message: "The tournament has reached its maximum number of players",
+                });
+            }
 
-        const addUser = await prisma.tournament.update({
-            where: {
-                id: tournamentDetails.id,
-            },
-            data: {
-                users: {
-                    connect: {
-                        id: curruser.user.id,
+            // Add the user to the tournament
+            const res  = await tx.tournament.update({
+                where: {
+                    id: tournamentDetails.id,
+                },
+                data: {
+                    users: {
+                        connect: {
+                            id: curruser.user.id,
+                        },
                     },
                 },
-            },
-        });
+            });
+            return new response(200, "Success", res);
+        })
 
-        if (!addUser) {
+        if (!result || !result.success) {
             return NextResponse.json(
-                new response(400, "Failed", {
-                    message: "Failed to join the tournament",
-                }),
+                new response(400, "Failed to join the tournament", {result:result?.data?.toLocaleString()}),
                 { status: 400 }
             );
         }
 
         return NextResponse.json(
-            new response(200, "Success", {
-                message: "You have successfully joined the tournament",
-            }),
+            new response(200, "You have successfully joined the tournament",
+                result.data,
+            ),
             { status: 200 }
         );
     } catch (error) {
         console.error("Error joining tournament:", error);
         return NextResponse.json(
-            new response(500, "Internal server error", {
-                message: "An unexpected error occurred",
-            }),
+            new response(500, "Internal server error", {error}),
             { status: 500 }
         );
     }
