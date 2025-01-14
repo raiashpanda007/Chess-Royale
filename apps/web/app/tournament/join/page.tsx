@@ -2,7 +2,14 @@ import React from "react";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import SearchTournaments from "@workspace/ui/components/SearchTournaments" 
+import axios from "axios";
 function page() {
+  const joinTournamentSlug = async (slug:string) =>{
+    const res = await axios.put(`${process.env.BASE_url}/api/tournament/join/slug`,{
+      slug
+    })
+    
+  }
   return (
     <div className="h-screen w-full font-poppins">
       <div className="relative top-16 w-full h-40 items-center justify-evenly flex ">

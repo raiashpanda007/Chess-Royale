@@ -51,10 +51,10 @@ async function joinTournament(req: NextRequest) {
 
         if (tournamentDetails.users.find((user) => user.id === curruser.user.id)) {
             return NextResponse.json(
-                new response(400, "Failed", {
+                new response(200, "Already Joined", {
                     message: "You have already joined the tournament",
                 }),
-                { status: 400 }
+                { status: 200 }
             );
         }
 
