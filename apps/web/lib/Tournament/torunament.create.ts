@@ -18,7 +18,7 @@ const createTournamentSchema = zod.object({
 });
 
   
-async function handleCreateTournament(req: NextRequest) {
+async function handleCreateTournament(req: NextRequest): Promise<NextResponse> {
     try {
         const currUser = await getServerSession(NEXT_AUTH_CONFIG);
         console.log(currUser)
