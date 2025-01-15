@@ -7,6 +7,6 @@
       "@workspace/ui/*": ["./src/*"]
     }
   },
-  "include": ["."],
+  "include": [".", "../../apps/web/components/Tournaments/SearchTournaments.tsx"],
   "exclude": ["node_modules", "dist"]
 }

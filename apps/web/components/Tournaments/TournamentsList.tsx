@@ -58,7 +58,7 @@ function TournamentsList({
   const { data: session, status } = useSession();
   console.log(session);
   if (status === "loading") return <div>Loading...</div>;
-  const isUserPartOfTournament = users.includes(session?.user?.id as string);
+  const isUserPartOfTournament = users? users.includes(session?.user?.id as string):false;
 
   return (
     <div className="w-full h-36 rounded-3xl flex items-center hover:border hover:bg-gray-900 animate-in cursor-pointer font-poppins">
@@ -80,7 +80,7 @@ function TournamentsList({
               {isUserPartOfTournament ? "Joined" : "Join"}
             </Button>
             <p className="text-sm">
-              {users.length}/{numberOfPlayers}
+              {users ?users.length:0 }/{numberOfPlayers}
             </p>
             <p
               className={

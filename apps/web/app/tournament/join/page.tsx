@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
-import SearchTournaments from "@workspace/ui/components/SearchTournaments";
+import SearchTournaments from "@/components/Tournaments/SearchTournaments";
 import TournamentsList from "@/components/Tournaments/TournamentsList";
 import Slugjoin from "@/components/Tournaments/SlugJoin";
 import type { User } from "@/types/User";
@@ -54,7 +54,7 @@ function page() {
                 key={tournament.id}
                 id={tournament.id}
                 name={tournament.name}
-                users={tournament.users.map((user) => user.id)}
+                users={tournament.users?.map((user) => user.id) as string[]}
                 logo={tournament.logo}
                 tournamentstatus={tournament.status}
                 numberOfPlayers={tournament.numberOfPlayers}
