@@ -24,7 +24,7 @@ async function getTournamentsList(req:NextRequest) {
                 }
             }
         })
-        console.log(getTournamentsList)
+        
         return NextResponse.json(
             new response(200, "Tournament details", getTournamentsList),
             { status: 200 }

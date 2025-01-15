@@ -33,7 +33,7 @@ function page() {
     <div className="h-screen w-full font-poppins">
       <div className="relative top-16 w-full h-40 items-center justify-evenly flex ">
         <div className="w-3/6 h-36 flex justify-center items-center space-x-3">
-          <SearchTournaments />
+          <SearchTournaments tournaments={tournaments} setTournaments={setTournaments} />
         </div>
         <div className="w-1/4 h-36 flex font-popins justify-evenly items-center border rounded-3xl">
           <Slugjoin />

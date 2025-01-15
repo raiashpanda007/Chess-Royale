@@ -8,7 +8,10 @@ declare module "next-auth" {
     };
   }
 }
+import axios from "axios";
 import React from "react";
+import {toast} from 'sonner'
+import { useRouter } from "next/navigation";
 interface TournamentsListProps {
   id: string;
   name: string;
@@ -26,14 +29,40 @@ function TournamentsList({
   tournamentstatus,
   numberOfPlayers,
 }: TournamentsListProps) {
+    const router = useRouter();
+    const joinContest = async (tournamentId:string) =>{
+        try {
+            const response = await axios.put('http://localhost:3000/api/tournament/join/userRequest', {tournamentId});
+            console.log(response);
+            if(response){
+                toast(response.data.data.message, {
+                    description: `Tournament ID: ${response.data.data.id}`,
+                    action: {
+                      label: "View",
+                      onClick: () => router.push(`/tournament/${response.data.data.id}`),
+                    },
+                  });
+            }
+        } catch (error) {
+            toast("Failed to join the tournament", {
+                description: JSON.stringify(error),
+                action: {
+                  label: "Retry",
+                  onClick: () => joinContest(tournamentId),
+                },
+              });
+        }
+    }
+
+
   const { data: session, status } = useSession();
   console.log(session);
   if (status === "loading") return <div>Loading...</div>;
   const isUserPartOfTournament = users.includes(session?.user?.id as string);
 
   return (
-    <div className="w-full h-36 rounded-3xl flex items-center border font-poppins">
-      <div className="w-1/6 flex items-centter justify-center border">
+    <div className="w-full h-36 rounded-3xl flex items-center hover:border hover:bg-gray-900 animate-in cursor-pointer font-poppins">
+      <div className="w-1/6 flex items-centter justify-center ">
         <img src={logo} alt="logo" className="w-20 h-20 rounded-full" />
       </div>
       <div className="w-2/4 flex flex-col justify-center ">
@@ -46,6 +75,7 @@ function TournamentsList({
             <Button
               variant={isUserPartOfTournament?"ghost":"default"}
               className="w-1/3 font-poppins font-semibold"
+              onClick={()=>joinContest(id)}
             >
               {isUserPartOfTournament ? "Joined" : "Join"}
             </Button>

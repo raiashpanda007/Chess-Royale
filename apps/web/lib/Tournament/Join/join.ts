@@ -32,14 +32,14 @@ async function joinTournament(req: NextRequest) {
             // Lock the tournament row for updates
             const tournamentDetails = await tx.tournament.findUnique({
                 where: {
-                    slug: parsedData.data.tournamentId,
+                    id: parsedData.data.tournamentId,
                 },
                 include: {
                     users: true,
                 },
             });
             if(!tournamentDetails)
-            return new response(400,"Invalid Slug" ,{})
+            return new response(400,"Invalid Id" ,{})
 
             // Check if the user is already part of the tournament
             if (tournamentDetails.users.find((user) => user.id === curruser.user.id)) {
