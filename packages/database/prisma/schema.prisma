@@ -21,7 +21,6 @@ model User {
   player1Matches    Match[]     @relation("Player1Matches")
   player2Matches    Match[]     @relation("Player2Matches")
   adminTournaments  Tournament[] @relation("AdminTournaments")
-  soloGames         SoloGame[]  // Relation for solo games played by the user
   scoreCards        ScoreCard[] // Relation for score cards of the user
 }
 
@@ -71,26 +70,18 @@ model Match {
   id            String     @id @default(cuid())
   player1Id     String
   player1       User       @relation("Player1Matches", fields: [player1Id], references: [id])
-  player2Id     String
-  player2       User       @relation("Player2Matches", fields: [player2Id], references: [id])
+  player2Id     String?
+  player2       User?     @relation("Player2Matches", fields: [player2Id], references: [id])
   result        Result
   createdAt     DateTime   @default(now())
-  lastTime      DateTime
+  lastTime      DateTime?
   round         Round?     @relation(fields: [roundId], references: [id])
   roundId       String?
   time          Int
   AddedTime     Int
 }
 
-model SoloGame {
-  id            String     @id @default(cuid())
-  playerId      String
-  player        User       @relation(fields: [playerId], references: [id])
-  score         Int        // Score the player achieved in the solo game
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
 
-}
 model ScoreCard {
   tournamentId  String
   tournament    Tournament @relation(fields: [tournamentId], references: [id])
@@ -113,9 +104,9 @@ enum Provider {
 enum Result {
   WINNER1
   WINNER2
-  LOSE
   DRAW
   NOT_PLAYED
+  PLAYING
 }
 
 enum StatusTournament {

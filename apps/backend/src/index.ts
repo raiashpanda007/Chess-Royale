@@ -1,10 +1,22 @@
 import { WebSocketServer } from "ws";
 import GameHandler from "./GameManager";
-const wss = new WebSocketServer({port:8080});
-const gameHandler = new GameHandler();
-wss.on('connection',function connection(ws){
-    console.log('New Connection',ws);
-    gameHandler.addUser(ws);
+import { PrismaClient } from "@workspace/db"
+import type { User } from '@workspace/types'
 
-    ws.on('disconnect',()=> gameHandler.removeUser(ws))  
+import {  MATCH_MAKING } from "./message";
+const prisma = new PrismaClient();
+const gameHandler = new GameHandler();
+const wss = new WebSocketServer({ port: 8080 });
+wss.on('connection', function connection(ws) {
+    console.log('New Connection', ws);
+    wss.on('message', (data) => {
+        const message = JSON.parse(data.toString());
+        if(message.type===MATCH_MAKING) {
+            const user = message.payload.user as User;
+            gameHandler.addUser(ws,user)
+        }
+    })
+
+
+    ws.on('disconnect', () => gameHandler.removeUser(ws))
 })

@@ -1,14 +1,36 @@
-import { createClient } from 'redis';
-import { RedisClientType } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 
-const RedisClient: RedisClientType = createClient({url:'redis://localhost:6379'});
+export default class RedisClient {
+  private static instance: RedisClient;
+  private client: RedisClientType;
 
-RedisClient.connect()
-  .then(() => {
-    console.log('Redis connected');
-  })
-  .catch((err) => {
-    console.error('Redis connection error:', err);
-  });
+  // Private constructor to prevent direct instantiation
+  private constructor() {
+    this.client = createClient({ url: 'redis://localhost:6379' });
 
-export default RedisClient;
+    // Handle connection events
+    this.client.on('connect', () => {
+      console.log('Redis connected');
+    });
+
+    this.client.on('error', (err) => {
+      console.error('Redis connection error:', err);
+    });
+
+    this.client.connect(); // Connect to Redis when the instance is created
+  }
+
+  // Public method to get the singleton instance
+  public static getInstance(): RedisClient {
+    if (!RedisClient.instance) {
+      RedisClient.instance = new RedisClient();
+    }
+
+    return RedisClient.instance;
+  }
+
+  // Public method to access the Redis client
+  public getClient(): RedisClientType {
+    return this.client;
+  }
+}
