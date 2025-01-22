@@ -20,10 +20,6 @@ export default class GameHandler {
         this.games = [];
         this.users = [];
         this.socketsMap = new Map();
-
-        // map typing
-
-        
     }
     addUser(socket: WebSocket, user: User) {
 
@@ -85,6 +81,16 @@ export default class GameHandler {
                                 }
                                 const game = new Game({ socket: pendingUserSocket, user: pendingUser.user }, { socket, user }, pendingUser.game);
                                 this.games.push(game);
+                                socket.send(JSON.stringify({
+                                    type:GAME_INITIALIZE,
+                                    payload:{
+                                        game:{
+                                            player1:pendingUser.user,
+                                            player2:user,
+                                            id:pendingUser.game
+                                        }
+                                    }
+                                }))
                                 this.socketsMap.delete(pendingUser.user.id);
                             }
                         } catch (error) {
@@ -117,6 +123,7 @@ export default class GameHandler {
                             })
                             await redis.lPush('pending_users',JSON.stringify({user,game:newGame.id}))
                             this.socketsMap.set(user.id, socket);
+                            
                             
                         } catch (error) {
                             console.log(error)

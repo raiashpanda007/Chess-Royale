@@ -8,12 +8,13 @@ const prisma = new PrismaClient();
 const gameHandler = new GameHandler();
 const wss = new WebSocketServer({ port: 8080 });
 wss.on('connection', function connection(ws) {
-    console.log('New Connection', ws);
+    
     wss.on('message', (data) => {
         const message = JSON.parse(data.toString());
         if(message.type===MATCH_MAKING) {
             const user = message.payload.user as User;
             gameHandler.addUser(ws,user)
+            console.log("user joined ",user);
         }
     })
 

@@ -9,12 +9,14 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  
   "dependencies": {
     "@workspace/ui": "workspace:*",
     "chess.js": "^1.0.0",
     "lucide-react": "0.456.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
