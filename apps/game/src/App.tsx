@@ -61,7 +61,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen bg-black flex font-white font-poppins font-semibold ">
+    <div className="h-screen bg-black flex font-white  font-semibold ">
       <div className="w-2/3 border h-full flex justify-center items-center">
         <ChessBoard chess={chess} setBoard = {setBoard} board={board} socket={socket}/>
       </div>

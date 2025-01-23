@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js && node dist/index.js"
+    "tsbuild": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js ",
+    "dev":"node dist/index.js"
   },
   "keywords": [],
   "author": "",
