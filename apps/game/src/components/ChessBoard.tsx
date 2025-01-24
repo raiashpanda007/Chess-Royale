@@ -47,12 +47,12 @@ function ChessBoard({
     };
   }, [socket]);
 
-  if (!socket) return <div>Loading WebSocket...</div>;
+  if (!socket) return <div className="text-white">Loading WebSocket...</div>;
 
   if (playerColor === null) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="text-xl font-bold">Waiting for color assignment...</div>
+        <div className="text-xl font-bold text-white">Waiting for color assignment...</div>
       </div>
     );
   }
@@ -60,7 +60,7 @@ function ChessBoard({
   const renderedBoard = playerColor === "b" ? [...board].reverse() : board;
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="chess-board">
       {renderedBoard.map((row, i) => {
         const renderedRow = playerColor === "b" ? [...row].reverse() : row;
 

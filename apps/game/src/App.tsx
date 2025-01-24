@@ -4,9 +4,10 @@ import ChessBoard from "./components/ChessBoard";
 import { Button } from "@workspace/ui/components/button";
 import useSocket from "./hooks/useSocket";
 import { Chess } from "chess.js";
-import { MATCH_MAKING, START } from "./types/messagetypes";
+import { MATCH_MAKING, PROMOTION, START } from "./types/messagetypes";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { useNavigation } from "react-router-dom";
+import Promotion from "./components/Promotion";
 
 function App() {
   const navigate = useNavigation();
@@ -61,7 +62,9 @@ function App() {
         case GAME_OVER:
           console.log("Game over");
           const result = message.payload;
-
+          break;
+        case PROMOTION:
+          <Promotion socket={socket} />;
           break;
 
         default:
@@ -79,7 +82,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen bg-black flex font-white  font-semibold ">
+    <div className="h-screen bg-black flex font-white relative  font-semibold ">
       <div className="w-2/3 border h-full flex justify-center items-center">
         <ChessBoard
           chess={chess}
