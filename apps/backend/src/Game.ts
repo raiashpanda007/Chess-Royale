@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import { WebSocket } from "ws";
-import { GAME_INITIALIZE, GAME_OVER, INVALID_MOVE, MOVE } from "./message";
+import { GAME_INITIALIZE, GAME_OVER, INVALID_MOVE, MOVE, START } from "./message";
 import { PrismaClient } from "@workspace/db";
 import type { User,Move } from "@workspace/types";
 const prisma = new PrismaClient();
@@ -19,12 +19,12 @@ export class Game {
         this.movesCount = 0;
 
         this.player1.socket.send(JSON.stringify({
-            type: GAME_INITIALIZE,
-            color: "white"
+            type: START ,
+            color: "w"
         }))
         this.player2.socket.send(JSON.stringify({
-            type: GAME_INITIALIZE,
-            color: 'black'
+            type: START,
+            color: 'b'
         }))
     }
     checkPromotion(move:Move) {

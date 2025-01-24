@@ -5,9 +5,9 @@ export interface User {
 }
 export interface Match {
     id: string
-    time: string,
-    AddedTime: string
-    roundId?: string
+    time: number,
+    AddedTime: number
+    roundId: string|null
 }
 export interface Move {
     from: string

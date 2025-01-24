@@ -121,6 +121,8 @@ export default class GameHandler {
                     player1: pendingUser.user,
                     player2: user,
                     id: pendingUser.game,
+                    time:updatedGame.time,
+                    AddedTime:updatedGame.AddedTime
                   },
                 },
               })
@@ -134,6 +136,8 @@ export default class GameHandler {
                     player1: pendingUser.user,
                     player2: user,
                     id: pendingUser.game,
+                    time:updatedGame.time,
+                    AddedTime:updatedGame.AddedTime
                   },
                 },
               })

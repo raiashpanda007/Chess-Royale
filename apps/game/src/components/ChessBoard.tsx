@@ -1,12 +1,12 @@
 import { Square, PieceSymbol, Color, Chess } from "chess.js";
-import { useState } from "react";
-import { MOVE } from "../types/messagetypes";
+import { useState, useEffect } from "react";
+import { MOVE, START } from "../types/messagetypes";
 
 function ChessBoard({
   board,
   socket,
   setBoard,
-  chess
+  chess,
 }: {
   board: ({
     square: Square;
@@ -23,63 +23,115 @@ function ChessBoard({
       } | null)[][]
     >
   >;
-  chess:Chess
+  chess: Chess;
 }) {
   const [from, setFrom] = useState<Square | null>(null);
   const [to, setTo] = useState<Square | null>(null);
+  const [playerColor, setPlayerColor] = useState<Color | null>(null);
 
-  if (!socket) return <div>Loading...</div>;
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleSocketMessage = (message: MessageEvent) => {
+      const data = JSON.parse(message.data);
+
+      if (data.type === START) {
+        setPlayerColor(data.color); // Set the player's color (black/white) when received
+      }
+    };
+
+    socket.addEventListener("message", handleSocketMessage);
+
+    return () => {
+      socket.removeEventListener("message", handleSocketMessage);
+    };
+  }, [socket]);
+
+  if (!socket) return <div>Loading WebSocket...</div>;
+
+  if (playerColor === null) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-xl font-bold">Waiting for color assignment...</div>
+      </div>
+    );
+  }
+
+  const renderedBoard = playerColor === "b" ? [...board].reverse() : board;
 
   return (
-    <div className="">
-      {board.map((row, i) => {
+    <div className="w-full flex flex-col">
+      {renderedBoard.map((row, i) => {
+        const renderedRow = playerColor === "b" ? [...row].reverse() : row;
+
         return (
           <div key={i} className="w-full flex rounded-lg">
-            {row.map((square, j) => {
-              // Correctly calculate square representation (e.g., A2, D4)
-              const squareRepresentation = (String.fromCharCode(97 + j) +
-                (8 - i)) as Square;
+            {renderedRow.map((square, j) => {
+              const squareRepresentation =
+                playerColor === "b"
+                  ? (String.fromCharCode(97 + (7 - j)) + (i + 1)) as Square
+                  : (String.fromCharCode(97 + j) + (8 - i)) as Square;
 
               return (
                 <div
                   key={j}
                   className={`w-24 h-24 flex justify-center items-center ${
                     (i + j) % 2 ? `bg-green-800` : `bg-white`
-                  } ${
-                    !i && !j
-                      ? "rounded-ss-md"
-                      : !i && j === 7
-                        ? "rounded-se-md"
-                        : !j && i === 7
-                          ? "rounded-es-md"
-                          : i === 7 && j === 7
-                            ? "rounded-ee-md"
-                            : ""
                   }`}
-                  onClick={() => {
-                    if (!from) setFrom(squareRepresentation);
-                    else {
+                  onClick={async () => {
+                    if (!from) {
+                      setFrom(squareRepresentation);
+                    } else {
+                      const isPawn =
+                        chess.get(from)?.type === "p" &&
+                        (playerColor === "w"
+                          ? squareRepresentation[1] === "8"
+                          : squareRepresentation[1] === "1");
+
+                      let promotion ;
+
+                      if (isPawn) {
+                        promotion = await new Promise<PieceSymbol>((resolve) => {
+                          const piece = prompt(
+                            "Promote pawn to (q/r/b/n):",
+                            "q"
+                          )?.toLowerCase() as PieceSymbol;
+                          resolve(piece);
+                        });
+                      }
+
                       setTo(squareRepresentation);
+
                       socket.send(
                         JSON.stringify({
                           type: MOVE,
                           move: {
                             from,
                             to: squareRepresentation,
+                            promotion, // Include promotion if applicable
                           },
                         })
                       );
 
-                      setFrom(null); // Reset from after sending the move
+                      setFrom(null);
+
                       chess.move({
                         from,
                         to: squareRepresentation,
-                      }); // Update state
+                        promotion, // Pass promotion to chess.js
+                      });
+
                       setBoard(chess.board());
                     }
                   }}
                 >
-                  {square ? <img src={`${square?.color === 'b'?square.type:`${square?.type?.toUpperCase()}`}.png`} />:null}
+                  {square ? (
+                    <img
+                      src={`${square?.color === "b" ? square.type : `${square?.type?.toUpperCase()}`}.png`}
+                      alt={`${square.color} ${square.type}`}
+                      className="piece"
+                    />
+                  ) : null}
                 </div>
               );
             })}
