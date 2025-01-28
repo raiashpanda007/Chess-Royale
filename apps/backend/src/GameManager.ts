@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { GAME_INITIALIZE, MOVE } from "./message";
+import { GAME_INITIALIZE, IN_GAME, MOVE } from "./message";
 import { Game } from "./Game";
 import { User, Match } from "@workspace/types";
 import RedisClient from "@workspace/queue";
@@ -54,7 +54,7 @@ export default class GameHandler {
     }
   }
 
-  private async addToQueue(user: User, gameId: string) {
+  private async addToQueue(user: User) {
     try {
       const existingEntries = await redis.lRange("pending_users", 0, -1);
       const isUserAlreadyInQueue = existingEntries.some((entry) => {
@@ -63,10 +63,11 @@ export default class GameHandler {
       });
 
       if (!isUserAlreadyInQueue) {
-        await redis.lPush("pending_users", JSON.stringify({ user, game: gameId }));
+        await redis.lPush("pending_users", JSON.stringify({ user}));
         console.log("User added to queue:", user.id);
       } else {
         console.log("User already in queue:", user.id);
+        this.socketsMap.get(user.id)?.send(JSON.stringify({ type: IN_GAME }));
       }
     } catch (error) {
       console.error("Error adding user to queue:", error);
@@ -84,24 +85,35 @@ export default class GameHandler {
 
         if (pendingUser) {
           // Update the match and start the game
-          let updatedGame;
+          let newGame;
           try {
-            updatedGame = await prisma.$transaction(async (tx) => {
-              return await tx.match.update({
-                where: { id: pendingUser.game },
-                data: {
-                  player2: { connect: { id: user.id } },
-                  result: "PLAYING",
-                },
-              });
-            });
-            console.log("Game updated:", updatedGame);
+            newGame =  await prisma.$transaction(async(tx) =>{
+              const match = await tx.match.create({
+                data:{
+                  player1:{
+                    connect:{
+                      id:pendingUser.user.id
+                    }
+                  },
+                  player2:{
+                    connect:{
+                      id:user.id
+                    }
+                  },
+                  time:10,
+                  AddedTime:0,
+                  result:"PLAYING"
+                }
+              })
+              return match;
+            })
+            console.log("Game updated:", newGame);
           } catch (error) {
             console.error("Error updating game:", error);
             return;
           }
 
-          if (updatedGame) {
+          if (newGame) {
             const pendingUserSocket = this.socketsMap.get(pendingUser.user.id);
             if (!pendingUserSocket) {
               console.error(`Socket not found for pending user: ${pendingUser.user.id}`);
@@ -125,8 +137,8 @@ export default class GameHandler {
                     player1: pendingUser.user,
                     player2: user,
                     id: pendingUser.game,
-                    time:updatedGame.time,
-                    AddedTime:updatedGame.AddedTime,
+                    time:newGame.time,
+                    AddedTime:newGame.AddedTime,
                   },
                 },
               })
@@ -140,8 +152,8 @@ export default class GameHandler {
                     player1: pendingUser.user,
                     player2: user,
                     id: pendingUser.game,
-                    time:updatedGame.time,
-                    AddedTime:updatedGame.AddedTime
+                    time:newGame.time,
+                    AddedTime:newGame.AddedTime
                   },
                 },
               })
@@ -152,27 +164,11 @@ export default class GameHandler {
           }
         } else {
           // No pending user; create a new game
-          let newGame;
-          try {
-            newGame = await prisma.$transaction(async (tx) => {
-              return await tx.match.create({
-                data: {
-                  player1: { connect: { id: user.id } },
-                  result: "NOT_PLAYED",
-                  time: 10,
-                  AddedTime: 0,
-                },
-              });
-            });
-            console.log("New game created:", newGame);
-          } catch (error) {
-            console.error("Error creating game:", error);
-            return;
-          }
+          
 
           try {
             // Add the current user to the Redis queue
-            await this.addToQueue(user, newGame.id);
+            await this.addToQueue(user);
             this.socketsMap.set(user.id, socket);
 
             // Notify the player about the new game
@@ -183,7 +179,7 @@ export default class GameHandler {
                   game: {
                     player1: user,
                     player2: null,
-                    id: newGame.id,
+                    
                   },
                 },
               })
