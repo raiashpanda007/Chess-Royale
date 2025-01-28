@@ -1,12 +1,15 @@
 import { Square, PieceSymbol, Color, Chess } from "chess.js";
 import { useState, useEffect } from "react";
 import { MOVE, START } from "../types/messagetypes";
-
+import WhiteClock from "./WhiteClock";
+import BlackClock from "./BlackClock";
 function ChessBoard({
   board,
   socket,
   setBoard,
   chess,
+  time,
+  addedTime
 }: {
   board: ({
     square: Square;
@@ -24,6 +27,8 @@ function ChessBoard({
     >
   >;
   chess: Chess;
+  time: number;
+  addedTime: number | null;
 }) {
   const [from, setFrom] = useState<Square | null>(null);
   const [to, setTo] = useState<Square | null>(null);
@@ -61,6 +66,7 @@ function ChessBoard({
 
   return (
     <div className="chess-board">
+      {playerColor === "b" ? <WhiteClock chess={chess} initialTime={time} addedTime={addedTime} /> : <BlackClock chess={chess} initialTime={time} addedTime={addedTime} />}
       {renderedBoard.map((row, i) => {
         const renderedRow = playerColor === "b" ? [...row].reverse() : row;
 
@@ -138,6 +144,7 @@ function ChessBoard({
           </div>
         );
       })}
+      {playerColor === "b" ? <BlackClock chess={chess} initialTime={time} addedTime={addedTime} /> : <WhiteClock chess={chess} initialTime={time} addedTime={addedTime} />}
     </div>
   );
 }

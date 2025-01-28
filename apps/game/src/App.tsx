@@ -19,6 +19,8 @@ function App() {
   const [chess, setChess] = useState(() => new Chess()); // Initialize once
   const [board, setBoard] = useState(chess.board());
   const [socketReady, setSocketReady] = useState(false); // Track socket readiness
+  const [time,setTime] = useState<number> (10);
+  const [addedTime, setAddedTime] = useState<number | null>(null);
   const [socket, user] = useSocket();
 
   // Ensure hooks aren't conditionally rendered
@@ -50,6 +52,8 @@ function App() {
           const newGame = new Chess();
           setChess(newGame); // Update the chess instance
           setBoard(newGame.board()); // Sync the board
+          setTime(message.payload.game.time);
+          setAddedTime(message.payload.game.AddedTime);
           break;
         
 
@@ -57,6 +61,7 @@ function App() {
           const move = message.payload; // Apply the move
           chess.move(move); // Update state
           setBoard(chess.board()); // Sync the board
+          
           break;
 
         case GAME_OVER:
@@ -89,7 +94,8 @@ function App() {
           setBoard={setBoard}
           board={board}
           socket={socket}
-          
+          time={time}
+          addedTime={addedTime}
         />
       </div>
       <div className="w-1/3 border h-full ">

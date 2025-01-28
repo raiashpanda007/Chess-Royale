@@ -137,12 +137,14 @@ export class Game {
         if (this.movesCount % 2 === 0) {
             this.player2.socket.send(JSON.stringify({
                 type: MOVE,
-                payload: move
+                payload: move,
+                moveBy: 'w'
             }))
         } else {
             this.player1.socket.send(JSON.stringify({
                 type: MOVE,
-                payload: move
+                payload: move,
+                moveBy: 'b'
             }))
         }
         this.movesCount++;

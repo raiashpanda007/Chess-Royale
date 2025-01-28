@@ -4,3 +4,4 @@ export const GAME_OVER = `game_over`
 export const MATCH_MAKING = "match_making"
 export const INVALID_MOVE = "invalid_move"
 export const START = "start"
+export const TIMER = "timer"

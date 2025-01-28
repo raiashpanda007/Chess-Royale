@@ -4,3 +4,4 @@ export const MOVE = "move";
 export const MATCH_MAKING = "match_making"
 export const START = "start";
 export const PROMOTION = "PROMOTION";
+export const TIMER = "timer";

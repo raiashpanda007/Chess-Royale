@@ -8,6 +8,10 @@ import { PrismaClient } from "@workspace/db";
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"], // Enable Prisma query logging
 });
+
+if(!prisma.$connect){
+  console.log("Connection to the database failed");
+}
 const redis = RedisClient.getInstance().getClient();
 
 export default class GameHandler {
@@ -122,7 +126,7 @@ export default class GameHandler {
                     player2: user,
                     id: pendingUser.game,
                     time:updatedGame.time,
-                    AddedTime:updatedGame.AddedTime
+                    AddedTime:updatedGame.AddedTime,
                   },
                 },
               })
