@@ -71,7 +71,7 @@ model Match {
   player1Id     String
   player1       User       @relation("Player1Matches", fields: [player1Id], references: [id])
   player2Id     String?
-  player2       User?     @relation("Player2Matches", fields: [player2Id], references: [id])
+  player2       User?   @relation("Player2Matches", fields: [player2Id], references: [id])
   result        Result
   createdAt     DateTime   @default(now())
   lastTime      DateTime?

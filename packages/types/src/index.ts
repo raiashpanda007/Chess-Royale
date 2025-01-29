@@ -14,3 +14,14 @@ export interface Move {
     to: string
     promotion?: string
 }
+
+export interface PairingAlogrithm {
+    tournamentID:string,
+    adminID: string,
+
+}
+export interface Players {
+    id:string,
+    score:number
+    previousOpponents:Set<string>
+}
