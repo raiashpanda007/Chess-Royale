@@ -34,55 +34,64 @@ const matchMaking = async ({
     });
 
     // Step 4: Pair players within the same score group first
-    for (const [score, group] of scoreGroups.entries()) {
+    let remainingPlayers: Players[] = [];
+
+    for (const [, group] of scoreGroups.entries()) {
         let localPlayers = [...group];
 
         while (localPlayers.length > 1) {
-            let p1 = localPlayers.shift() ?? null;
-            if (!p1) continue; // Ensure p1 is valid
+            let p1 = localPlayers.shift();
+            if (!p1) continue; // Ensure p1 exists
 
             let opponentIndex = localPlayers.findIndex(
                 (p) => !p1.previousOpponents.has(p.id)
             );
 
             if (opponentIndex !== -1) {
-                let p2 = localPlayers.splice(opponentIndex, 1)[0] ?? null;
-                if (!p2) continue; // Ensure p2 is valid
+                let p2 = localPlayers.splice(opponentIndex, 1)[0]; // Ensure p2 exists
+                if (p2) {
+                    pairedMatches.push([p1.id, p2.id]);
 
-                pairedMatches.push([p1.id, p2.id]);
-
-                // Update previous opponents
-                p1.previousOpponents.add(p2.id);
-                p2.previousOpponents.add(p1.id);
+                    // Update previous opponents
+                    p1.previousOpponents.add(p2.id);
+                    p2.previousOpponents.add(p1.id);
+                } else {
+                    remainingPlayers.push(p1);
+                }
             } else {
-                unpairedPlayers.push(p1); // Reassign for cross-group pairing
+                remainingPlayers.push(p1);
             }
         }
 
-        // Handle odd number of players in a score group
-        if (localPlayers.length === 1 && localPlayers[0]) {
-            unpairedPlayers.push(localPlayers[0]);
+        // Handle unpaired player
+        if (localPlayers.length === 1) {
+            let lonePlayer = localPlayers[0];
+            if (lonePlayer) {
+                remainingPlayers.push(lonePlayer);
+            }
         }
     }
 
-    // Step 5: Pair remaining players with closest available opponents
-    while (unpairedPlayers.length > 1) {
-        let p1 = unpairedPlayers.shift() ?? null;
-        let p2 = unpairedPlayers.shift() ?? null;
+    // Step 5: Pair remaining players across groups
+    while (remainingPlayers.length > 1) {
+        let p1 = remainingPlayers.shift();
+        let p2 = remainingPlayers.shift();
 
-        if (!p1 || !p2) continue; // Ensure both players are valid
+        if (p1 && p2) {
+            pairedMatches.push([p1.id, p2.id]);
 
-        pairedMatches.push([p1.id, p2.id]);
-
-        // Update previous opponents
-        p1.previousOpponents.add(p2.id);
-        p2.previousOpponents.add(p1.id);
+            // Update previous opponents
+            p1.previousOpponents.add(p2.id);
+            p2.previousOpponents.add(p1.id);
+        }
     }
 
     // Step 6: Assign a bye if there's an unpaired player left
-    if (unpairedPlayers.length === 1 && unpairedPlayers[0]) {
-        let byePlayer = unpairedPlayers[0];
-        pairedMatches.push([byePlayer.id, "BYE"]);
+    if (remainingPlayers.length === 1) {
+        let byePlayer = remainingPlayers[0];
+        if (byePlayer) {
+            pairedMatches.push([byePlayer.id, "BYE"]);
+        }
     }
 
     return pairedMatches;

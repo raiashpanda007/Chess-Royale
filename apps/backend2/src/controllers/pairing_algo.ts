@@ -81,6 +81,10 @@ const pairing_algo = asyncHandler(async (req, res) => {
                 }
             });
         });
+        if(tournament.numberOfRounds === tournament.numberOfPlayers - 1){
+            // tournament generate winners and end tournament
+            return res.status(200).json(new response(200, "Tournament ended", null));
+        }
 
         // Step 5: Perform Matchmaking (Swiss System)
         const matchPairs = await matchMaking({
@@ -89,9 +93,33 @@ const pairing_algo = asyncHandler(async (req, res) => {
             players
         });
 
-        console.log("Generated Match Pairs:", matchPairs);
 
-        return res.status(200).json(new response(200, "Matchmaking completed", matchPairs));
+        console.log("Generated Match Pairs:", matchPairs);
+        // create round and matches
+        const roundsMatches = await  prisma.$transaction(async (tx)=>{
+            const round = await tx.round.create({
+                data: {
+                    tournamentId: tournament.id,
+                    number: tournament.numberOfRounds + 1
+                }
+            });
+            const matches = matchPairs.map(pair => {
+                return tx.match.create({
+                    data: {
+                        roundId: round.id,
+                        player1Id: pair[0],
+                        player2Id: pair[1] === "BYE" ? null : pair[1],
+                        time:tournament.time,
+                        AddedTime:tournament.AddedTime,
+                        result:"NOT_PLAYED"
+
+                    }
+                });
+            });
+            return matches;
+        })
+
+        return res.status(200).json(new response(200, "Matchmaking completed", {MatchPairs:matchPairs,Rounds:roundsMatches}));
     } catch (error) {
         console.error("Unexpected Error in Pairing Algorithm:", error);
         return res.status(500).json(new response(500, "Internal server error", null));
