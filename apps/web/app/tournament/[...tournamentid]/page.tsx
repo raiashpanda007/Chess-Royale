@@ -9,6 +9,9 @@ import CopyButton from "@workspace/ui/components/CopyButton";
 import TabsDemo from "@/components/MacthesList/Tournament";
 import { useRouter } from "next/navigation";
 import DeleteDialog from "@/components/Forms/DeleteDialog";
+import { useSession } from "next-auth/react";
+import { StatusTournament } from "@workspace/db";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -18,10 +21,33 @@ import {
 } from "@workspace/ui/components/select";
 const Page: FC = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { tournamentid } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [tournament, setTournament] = useState<Tournament>();
   
+  const startTournament = async () =>{
+    try {
+      const response = await axios.post('http://localhost:3000/api/tournament/start', {tournamentid: tournamentid});
+      if(response){
+        toast(response.data.data.message, {
+          description: `Tournament ID: ${response.data.data.id}`,
+          
+        });
+
+        
+      }
+    } catch (error) {
+      toast("Failed to start the tournament", {
+        description: JSON.stringify(error),
+        action: {
+          label: "Retry",
+          onClick: () => startTournament(),
+        },
+      });
+    }
+  }
+
   const fetchTournament = async () => {
     const repsonse = await axios.get(
       `http://localhost:3000/api/tournament/fetch`,
@@ -108,6 +134,11 @@ const Page: FC = () => {
             <Button className="font-poppins font-bold">
               Generate Next Round
             </Button>
+            {tournament?.status &&  tournament.status.toString() != "START" && tournament.admin.id === session?.user?.id &&(
+              <Button className="font-poppins font-bold" onClick={startTournament}>
+                Start Tournament
+              </Button>
+            ) }
           </div>
           <TabsDemo />
         </div>

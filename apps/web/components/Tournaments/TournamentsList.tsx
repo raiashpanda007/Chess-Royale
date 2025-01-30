@@ -21,6 +21,7 @@ interface TournamentsListProps {
   numberOfPlayers: number;
 }
 import { useSession } from "next-auth/react";
+import { set } from "zod";
 function TournamentsList({
   id,
   name,
@@ -42,6 +43,7 @@ function TournamentsList({
                       onClick: () => router.push(`/tournament/${response.data.data.id}`),
                     },
                   });
+                  setIsJoined(true);
             }
         } catch (error) {
             toast("Failed to join the tournament", {
@@ -57,34 +59,39 @@ function TournamentsList({
 
   const { data: session, status } = useSession();
   console.log(session);
+  
+  const [isJoined, setIsJoined] = React.useState(false);
+  React.useEffect(() => {
+    if (session?.user?.id) {
+      setIsJoined(users ? users.includes(session.user.id) : false);
+    }
+  }, [session, users]);
   if (status === "loading") return <div>Loading...</div>;
-  const isUserPartOfTournament = users? users.includes(session?.user?.id as string):false;
-
   return (
-    <div className="w-full h-36 rounded-3xl flex items-center hover:border hover:bg-gray-900 animate-in cursor-pointer font-poppins">
+    <div className="w-full h-36 rounded-3xl flex items-center hover:border hover:bg-gray-900 animate-in cursor-pointer font-poppins" >
       <div className="w-1/6 flex items-centter justify-center ">
         <img src={logo} alt="logo" className="w-20 h-20 rounded-full" />
       </div>
       <div className="w-2/4 flex flex-col justify-center ">
-        <h1 className="text-3xl font-bold">{name}</h1>
+        <h1 onClick={()=>router.push(`/tournament/${id}`)} className="text-3xl font-bold hover:underline">{name}</h1>
         <p className="text-sm">{id}</p>
       </div>
       <div className="w-1/3 h-full flex flex-col justify-center items-center">
         {tournamentstatus === "OPEN" ? (
           <div className="w-full flex flex-col items-center ">
             <Button
-              variant={isUserPartOfTournament?"ghost":"default"}
+              variant={isJoined?"ghost":"default"}
               className="w-1/3 font-poppins font-semibold"
               onClick={()=>joinContest(id)}
             >
-              {isUserPartOfTournament ? "Joined" : "Join"}
+              {isJoined ? "Joined" : "Join"}
             </Button>
             <p className="text-sm">
               {users ?users.length:0 }/{numberOfPlayers}
             </p>
             <p
               className={
-                isUserPartOfTournament
+                isJoined
                   ? `font-semibold text-destructive`
                   : `font-semibold`
               }
@@ -98,7 +105,7 @@ function TournamentsList({
               variant={"ghost"}
               className="w-1/3 font-poppins font-semibold cursor-not-allowed " 
             >
-              {isUserPartOfTournament ? "Joined" : "Join"}
+              {isJoined ? "Joined" : "Join"}
             </Button>
             <p className="text-sm">
               {users.length}/{numberOfPlayers}
