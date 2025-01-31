@@ -6,3 +6,7 @@ export const INVALID_MOVE = "invalid_move"
 export const START = "start"
 export const TIMER = "timer"
 export const IN_GAME = "in_game"
+export const DRAW = "draw";
+export const SENDING_DRAW = "draw_send"
+export const ACCEPT_DRAW = "draw_accept"
+export const RESIGN = "resign_game"

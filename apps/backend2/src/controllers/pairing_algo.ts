@@ -6,7 +6,6 @@ import firstMatching from "../services/Match Making/randomMatching";
 import matchMaking from "../services/Match Making/MatchMaking";
 
 const prisma = new PrismaClient();
-
 const pairing_algo = asyncHandler(async (req, res) => {
     const data: PairingAlogrithm = req.body;
     console.log("Pairing Algorithm Request:", data);
@@ -29,6 +28,7 @@ const pairing_algo = asyncHandler(async (req, res) => {
         if (tournament.status !== "START") {
             return res.status(400).json(new response(400, "Tournament not started. Please start the tournament first.", null));
         }
+
         console.log("Tournament Found:", tournament);
 
         // Step 2: Fetch Players & Scores
@@ -41,30 +41,29 @@ const pairing_algo = asyncHandler(async (req, res) => {
             select: { playerId: true, score: true }
         });
 
-        // If scoreCard doesn't exist (first round), initialize it
+        // Initialize ScoreCard if Empty
         if (scoreCard.length === 0) {
             await prisma.scoreCard.createMany({
                 data: users.map(user => ({
                     tournamentId: data.tournamentID,
                     playerId: user,
-                    score: 0 // Initial score
+                    score: 0
                 }))
             });
 
-            // Fetch again after creating
             scoreCard = await prisma.scoreCard.findMany({
                 where: { tournamentId: data.tournamentID },
                 select: { playerId: true, score: true }
             });
         }
 
-        // Step 3: Fetch Previous Matches to Track Opponents
+        // Step 3: Fetch Previous Matches
         const previousMatches = await prisma.match.findMany({
             where: { round: { tournamentId: data.tournamentID } },
             select: { player1Id: true, player2Id: true }
         });
 
-        // Step 4: Create Players Array with Previous Opponent Tracking
+        // Step 4: Create Players Array
         const players: Players[] = scoreCard.map(card => ({
             id: card.playerId,
             score: card.score,
@@ -81,49 +80,70 @@ const pairing_algo = asyncHandler(async (req, res) => {
                 }
             });
         });
-        if(tournament.numberOfRounds === tournament.numberOfPlayers - 1){
-            // tournament generate winners and end tournament
+
+        // Step 5: Check Tournament End Condition
+        if (tournament.numberOfRounds === tournament.numberOfPlayers - 1) {
+            await prisma.tournament.update({
+                where: { id: tournament.id },
+                data: { status: "FINISH" }
+            });
             return res.status(200).json(new response(200, "Tournament ended", null));
         }
 
-        // Step 5: Perform Matchmaking (Swiss System)
+        // Sort Players Before Matchmaking
+        players.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+
+        // Step 6: Perform Matchmaking
         const matchPairs = await matchMaking({
             tournamentID: tournament.id,
             adminID: tournament.adminId,
             players
         });
 
-
         console.log("Generated Match Pairs:", matchPairs);
-        // create round and matches
-        const roundsMatches = await  prisma.$transaction(async (tx)=>{
+
+        // Step 7: Create Rounds and Matches in a Transaction
+        const roundsMatches = await prisma.$transaction(async (tx) => {
             const round = await tx.round.create({
                 data: {
                     tournamentId: tournament.id,
                     number: tournament.numberOfRounds + 1
                 }
             });
-            const matches = matchPairs.map(pair => {
-                return tx.match.create({
-                    data: {
-                        roundId: round.id,
-                        player1Id: pair[0],
-                        player2Id: pair[1] === "BYE" ? null : pair[1],
-                        time:tournament.time,
-                        AddedTime:tournament.AddedTime,
-                        result:"NOT_PLAYED"
 
-                    }
-                });
+            // Create matches using Promise.all
+            const matches = await Promise.all(
+                matchPairs.map(pair =>
+                    tx.match.create({
+                        data: {
+                            roundId: round.id,
+                            player1Id: pair[0],
+                            player2Id: pair[1] === "BYE" ? null : pair[1],
+                            time: tournament.time,
+                            AddedTime: tournament.AddedTime,
+                            result: "NOT_PLAYED"
+                        }
+                    })
+                )
+            );
+
+            // Update Tournament Round Count
+            await tx.tournament.update({
+                where: { id: tournament.id },
+                data: { numberOfRounds: tournament.numberOfRounds + 1 }
             });
-            return matches;
-        })
 
-        return res.status(200).json(new response(200, "Matchmaking completed", {MatchPairs:matchPairs,Rounds:roundsMatches}));
+            return matches;
+        });
+
+        return res.status(200).json(new response(200, "Matchmaking completed", { MatchPairs: matchPairs, Rounds: roundsMatches }));
     } catch (error) {
         console.error("Unexpected Error in Pairing Algorithm:", error);
         return res.status(500).json(new response(500, "Internal server error", null));
     }
 });
+
+
+
 
 export default pairing_algo;

@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { GAME_INITIALIZE, IN_GAME, MOVE } from "./message";
+import { ACCEPT_DRAW, DRAW, GAME_INITIALIZE, GAME_OVER, IN_GAME, MOVE, RESIGN, SENDING_DRAW } from "./message";
 import { Game } from "./Game";
 import { User, Match } from "@workspace/types";
 import RedisClient from "@workspace/queue";
@@ -9,7 +9,7 @@ const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"], // Enable Prisma query logging
 });
 
-if(!prisma.$connect){
+if (!prisma.$connect) {
   console.log("Connection to the database failed");
 }
 const redis = RedisClient.getInstance().getClient();
@@ -63,7 +63,7 @@ export default class GameHandler {
       });
 
       if (!isUserAlreadyInQueue) {
-        await redis.lPush("pending_users", JSON.stringify({ user}));
+        await redis.lPush("pending_users", JSON.stringify({ user }));
         console.log("User added to queue:", user.id);
       } else {
         console.log("User already in queue:", user.id);
@@ -87,22 +87,22 @@ export default class GameHandler {
           // Update the match and start the game
           let newGame;
           try {
-            newGame =  await prisma.$transaction(async(tx) =>{
+            newGame = await prisma.$transaction(async (tx) => {
               const match = await tx.match.create({
-                data:{
-                  player1:{
-                    connect:{
-                      id:pendingUser.user.id
+                data: {
+                  player1: {
+                    connect: {
+                      id: pendingUser.user.id
                     }
                   },
-                  player2:{
-                    connect:{
-                      id:user.id
+                  player2: {
+                    connect: {
+                      id: user.id
                     }
                   },
-                  time:10,
-                  AddedTime:0,
-                  result:"PLAYING"
+                  time: 10,
+                  AddedTime: 0,
+                  result: "PLAYING"
                 }
               })
               return match;
@@ -137,8 +137,8 @@ export default class GameHandler {
                     player1: pendingUser.user,
                     player2: user,
                     id: pendingUser.game,
-                    time:newGame.time,
-                    AddedTime:newGame.AddedTime,
+                    time: newGame.time,
+                    AddedTime: newGame.AddedTime,
                   },
                 },
               })
@@ -152,8 +152,8 @@ export default class GameHandler {
                     player1: pendingUser.user,
                     player2: user,
                     id: pendingUser.game,
-                    time:newGame.time,
-                    AddedTime:newGame.AddedTime
+                    time: newGame.time,
+                    AddedTime: newGame.AddedTime
                   },
                 },
               })
@@ -164,7 +164,7 @@ export default class GameHandler {
           }
         } else {
           // No pending user; create a new game
-          
+
 
           try {
             // Add the current user to the Redis queue
@@ -179,7 +179,7 @@ export default class GameHandler {
                   game: {
                     player1: user,
                     player2: null,
-                    
+
                   },
                 },
               })
@@ -197,6 +197,62 @@ export default class GameHandler {
         if (game) {
           game.makeMove(socket, message.move);
         }
+      }
+      if (message.type === DRAW) {
+        const game = this.games.find(
+          (game) => game.player1.socket === socket || game.player2.socket === socket
+        );
+        const player1 = game?.player1
+        const player2 = game?.player2
+        if (message.payload === SENDING_DRAW) {
+          player1?.socket === socket ? player2?.socket.send(JSON.stringify({
+            type: DRAW,
+            payload: SENDING_DRAW
+          })) : player1?.socket.send(JSON.stringify({
+            type: DRAW,
+            payload: SENDING_DRAW
+          }))
+        } else if(message.payload === ACCEPT_DRAW ){
+          await game?.gameComplete("draw");
+          player1?.socket.send(JSON.stringify({
+            type:GAME_OVER,
+            payload:{
+              draw:true
+            }
+          }))
+          player2?.socket.send(JSON.stringify({
+            type:GAME_OVER,
+            payload:{
+              draw:true
+            }
+          }))
+          
+        } 
+
+
+      } 
+      if(message.type === RESIGN){
+        const game = this.games.find(
+          (game) => game.player1.socket === socket || game.player2.socket === socket
+        );
+        const player1 = game?.player1
+        const player2 = game?.player2
+        await game?.gameComplete(player1?.socket === socket ? "black":"white")
+        player1?.socket === socket ? player2?.socket.send(JSON.stringify({
+          type:GAME_OVER,
+          payload:{
+            user:player1.user,
+            method:RESIGN
+          }
+        })):player1?.socket.send(JSON.stringify({
+          type:GAME_OVER,
+          payload:{
+            user:player1.user,
+            method:RESIGN
+          }
+        }))
+        
+
       }
     });
 

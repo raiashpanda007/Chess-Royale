@@ -17,7 +17,8 @@ wss.on("connection", function connection(ws) {
             if (message.type === MATCH_MAKING) {
                 const user = message.payload.user as User;
                 console.log("User joined:", user);
-
+                const gameId = message.payload.gameId as string;
+                if(gameId)
                 gameHandler.addUser(ws, user);
                 ws.send(JSON.stringify({ type: "match_making", payload: "success" }));
             }
