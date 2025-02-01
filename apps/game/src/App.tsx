@@ -9,14 +9,30 @@ import ChessBoard from "./components/ChessBoard";
 import { Button } from "@workspace/ui/components/button";
 import useSocket from "./hooks/useSocket";
 import { Chess } from "chess.js";
-import { MATCH_MAKING, PROMOTION, RESIGN } from "./types/messagetypes";
+import {
+  DRAW,
+  MATCH_MAKING,
+  PROMOTION,
+  RESIGN,
+  SENDING_DRAW,
+} from "./types/messagetypes";
 import Promotion from "./components/Promotion";
 import WinnerCard from "./components/Winner";
+import DrawRequest from "./components/DrawRequest";
 const resignGame = async (socket: WebSocket | null) => {
   if (!socket) return <div>Socket is connected</div>;
   socket.send(
     JSON.stringify({
       type: RESIGN,
+    })
+  );
+};
+const sendDrawRequest = async (socket: WebSocket | null) => {
+  if (!socket) return <div>Socket is connected</div>;
+  socket.send(
+    JSON.stringify({
+      type: DRAW,
+      payload: SENDING_DRAW,
     })
   );
 };
@@ -37,7 +53,7 @@ function App() {
     method: string | null;
     draw: boolean | null;
   } | null>(null);
-
+  const [drawRequest, setDrawRequest] = useState<boolean>(false);
   // Ensure hooks aren't conditionally rendered
   useEffect(() => {
     if (!socket) return;
@@ -91,7 +107,11 @@ function App() {
         case PROMOTION:
           <Promotion socket={socket} />;
           break;
-
+        case DRAW:
+          if (message.payload === SENDING_DRAW) {
+            setDrawRequest(true);
+          }
+          break;
         default:
           console.error("Unknown message type:", message.type);
       }
@@ -117,7 +137,12 @@ function App() {
           />
         </div>
       )}
-      {!gameOver && (
+      {drawRequest && (
+        <div className="h flex h-full w-full items-center justify-center relative  font-semibold">
+          <DrawRequest socket={socket} setDrawRequest={setDrawRequest} />
+        </div>
+      )}
+      {(!gameOver && !drawRequest) && (
         <div className="flex w-full h-full">
           <div className="w-2/3 border h-full flex justify-center items-center">
             <ChessBoard
@@ -131,13 +156,15 @@ function App() {
             />
           </div>
           <div className="w-1/3 border h-full ">
-            <div className="h-1/6">
+            <div className="h-1/6 w-full flex ">
               <Button
                 variant={"destructive"}
                 onClick={() => resignGame(socket)}
               >
                 Resign
               </Button>
+
+              <Button onClick={() => sendDrawRequest(socket)}>Draw</Button>
             </div>
             <ScrollArea className="h-5/6 w-full overflow-auto"></ScrollArea>
           </div>

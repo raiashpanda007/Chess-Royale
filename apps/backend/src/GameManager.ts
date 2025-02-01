@@ -199,6 +199,7 @@ export default class GameHandler {
         }
       }
       if (message.type === DRAW) {
+        console.log("Draw request received");
         const game = this.games.find(
           (game) => game.player1.socket === socket || game.player2.socket === socket
         );
@@ -238,18 +239,19 @@ export default class GameHandler {
         );
         const player1 = game?.player1
         const player2 = game?.player2
+        const winingPlayer = player1?.socket === socket ? player2?.user:player1?.user
         await game?.gameComplete(player1?.socket === socket ? "black":"white")
         player2?.socket.send(JSON.stringify({
           type:GAME_OVER,
           payload:{
-            user:player1?.user,
+            user:winingPlayer,
             method:RESIGN
           }
         })) 
         player1?.socket.send(JSON.stringify({
           type:GAME_OVER,
           payload:{
-            user:player1.user,
+            user:winingPlayer,
             method:RESIGN
           }
         }))
