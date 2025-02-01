@@ -122,25 +122,26 @@ export default class TournamentGameHandler {
                 const game = this.games.find(
                     (game) => game.player1.socket === socket || game.player2.socket === socket
                 );
+                const player1 = game?.player1
+                const player2 = game?.player2
+                const winingPlayer = player1?.socket === socket ? player2?.user : player1?.user
+                await game?.gameComplete(player1?.socket === socket ? "black" : "white")
+                player2?.socket.send(JSON.stringify({
+                    type: GAME_OVER,
+                    payload: {
+                        user: winingPlayer,
+                        method: RESIGN
+                    }
+                }))
+                player1?.socket.send(JSON.stringify({
+                    type: GAME_OVER,
+                    payload: {
+                        user: winingPlayer,
+                        method: RESIGN
+                    }
+                }))
 
-                if (game) {
-                    const player1 = game.player1;
-                    const player2 = game.player2;
-                    const loser = player1.socket === socket ? player1 : player2;
-                    const winner = player1.socket === socket ? player2 : player1;
 
-                    game.gameComplete(winner.user.id);
-
-                    winner.socket.send(
-                        JSON.stringify({
-                            type: GAME_OVER,
-                            payload: {
-                                user: loser.user,
-                                method: RESIGN,
-                            },
-                        })
-                    );
-                }
             }
         });
 

@@ -6,6 +6,7 @@ interface User {
   id: string;
   username: string;
   profilePicture: string;
+  gameId: string | null;
 }
 
 const useSocket = () => {
@@ -18,13 +19,14 @@ const useSocket = () => {
     const id = searchParams.get("id");
     const username = searchParams.get("username");
     const profilePicture = decodeURIComponent(searchParams.get("profilePicture") || "");
+    const gameId = searchParams.get("gameId");
 
     if (!id || !username || !profilePicture) {
       console.error("Missing parameters in route.");
       return;
     }
 
-    setUser({ id, username, profilePicture });
+    setUser({ id, username, profilePicture , gameId});
   }, [searchParams]);
 
   // WebSocket connection
@@ -32,7 +34,7 @@ const useSocket = () => {
     if (!user) return; // Wait until the user is set
 
     const ws = new WebSocket("ws://localhost:8080");
-
+    const payload = user.gameId ? { user, gameId: user.gameId } : { user };
     ws.onopen = () => {
       console.log("Connected to the sockets");
       setSocket(ws);
@@ -41,7 +43,7 @@ const useSocket = () => {
       ws.send(
         JSON.stringify({
           type: MATCH_MAKING,
-          payload: { user },
+          payload
         })
       );
     };

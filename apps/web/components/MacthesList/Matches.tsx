@@ -17,7 +17,7 @@ interface MatchesProps {
 }
 import { useState, useEffect } from "react";
 import { FC } from "react";
-import { set } from "zod";
+import { useRouter } from "next/navigation";
 
 const MatchList: FC<MatchesProps> = ({
   id,
@@ -29,8 +29,10 @@ const MatchList: FC<MatchesProps> = ({
   AddedTime,
 }) => {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [showJoinButton, setShowJoinButton] = useState<boolean>(false);
   const [showResult, setShowResult] = useState<String>(result);
+  const url =  `game?id=${session?.user.id}&username=${session?.user.email}&profilePicture=${session?.user.image}&gameId=${id}`;
   useEffect(() => {
     if (result === "WINNER1") {
       setShowResult("1-0");
@@ -67,7 +69,7 @@ const MatchList: FC<MatchesProps> = ({
       </div>
       <div className="flex flex-col items-center">
         {showJoinButton ? (
-          <Button className="font-poppins" variant={"secondary"}>
+          <Button className="font-poppins" variant={"secondary"} onClick={() => router.push(`http://localhost:5173/${url}`)}>
             Join
           </Button>
         ) : (

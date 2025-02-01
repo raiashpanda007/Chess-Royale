@@ -4,6 +4,7 @@ import { PairingAlogrithm, Players } from "@workspace/types";
 import response from "../utils/repsonse";
 import firstMatching from "../services/Match Making/randomMatching";
 import matchMaking from "../services/Match Making/MatchMaking";
+import getWinner from "../services/Find Winner/TournamentWinner";
 
 const prisma = new PrismaClient();
 const pairing_algo = asyncHandler(async (req, res) => {
@@ -30,6 +31,11 @@ const pairing_algo = asyncHandler(async (req, res) => {
         }
 
         console.log("Tournament Found:", tournament);
+        if(tournament.numberOfRounds === tournament.numberOfPlayers - 1){
+            const winner = await getWinner(tournament.id);
+            if(winner)
+            return res.status(200).json(new response(200, "Tournament ended", winner));
+        }
 
         // Step 2: Fetch Players & Scores
         const users = tournament.users.map(user => user.id);

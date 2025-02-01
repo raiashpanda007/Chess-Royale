@@ -22,6 +22,7 @@ model User {
   player2Matches    Match[]     @relation("Player2Matches")
   adminTournaments  Tournament[] @relation("AdminTournaments")
   scoreCards        ScoreCard[] // Relation for score cards of the user
+  winnerTournaments Tournament[] @relation("TournamentWinner")
 }
 
 model Account {
@@ -54,6 +55,8 @@ model Tournament {
   AddedTime       Int
   logo            String?
   slug            String   @unique
+  winner          User?    @relation("TournamentWinner", fields: [winnerId], references: [id])
+  winnerId        String?
 }
 
 model Round {
