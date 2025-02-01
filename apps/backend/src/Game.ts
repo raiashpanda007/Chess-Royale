@@ -1,6 +1,6 @@
 import { Chess } from "chess.js";
 import { WebSocket } from "ws";
-import { GAME_INITIALIZE, GAME_OVER, INVALID_MOVE, MOVE, START } from "./message";
+import { CHECKMATE, GAME_INITIALIZE, GAME_OVER, INVALID_MOVE, MOVE, START } from "./message";
 import { PrismaClient } from "@workspace/db";
 import type { User,Move } from "@workspace/types";
 const prisma = new PrismaClient();
@@ -120,7 +120,7 @@ export class Game {
             const payload = winner ? {
                 winner,
                 user: winner === "white" ? this.player1.user : this.player2.user,
-                checkmate: this.board.isCheckmate(),
+                method: CHECKMATE,
             } : { draw: true };
 
             const gameOverPayload = {

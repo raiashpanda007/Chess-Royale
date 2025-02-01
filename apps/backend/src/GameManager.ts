@@ -124,7 +124,7 @@ export default class GameHandler {
             const game = new Game(
               { socket: pendingUserSocket, user: pendingUser.user },
               { socket, user },
-              pendingUser.game
+              newGame.id
             );
             this.games.push(game);
 
@@ -213,6 +213,7 @@ export default class GameHandler {
             payload: SENDING_DRAW
           }))
         } else if(message.payload === ACCEPT_DRAW ){
+          
           await game?.gameComplete("draw");
           player1?.socket.send(JSON.stringify({
             type:GAME_OVER,
@@ -238,13 +239,14 @@ export default class GameHandler {
         const player1 = game?.player1
         const player2 = game?.player2
         await game?.gameComplete(player1?.socket === socket ? "black":"white")
-        player1?.socket === socket ? player2?.socket.send(JSON.stringify({
+        player2?.socket.send(JSON.stringify({
           type:GAME_OVER,
           payload:{
-            user:player1.user,
+            user:player1?.user,
             method:RESIGN
           }
-        })):player1?.socket.send(JSON.stringify({
+        })) 
+        player1?.socket.send(JSON.stringify({
           type:GAME_OVER,
           payload:{
             user:player1.user,

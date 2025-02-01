@@ -46,7 +46,7 @@ function WhiteClock({ chess, initialTime, addedTime }: ClockProps) {
   }, [initialTime]);
 
   return (
-    <div className="text-white text-center bg-black p-2">
+    <div className="text-white text-2xl font-popins font-bold bg-black p-2">
       {isNaN(whiteTime) ? "00:00" : formatTime(whiteTime)}
     </div>
   );

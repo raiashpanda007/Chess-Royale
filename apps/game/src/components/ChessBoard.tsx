@@ -9,7 +9,8 @@ function ChessBoard({
   setBoard,
   chess,
   time,
-  addedTime
+  addedTime,
+  gameOver
 }: {
   board: ({
     square: Square;
@@ -29,6 +30,7 @@ function ChessBoard({
   chess: Chess;
   time: number;
   addedTime: number | null;
+  gameOver: boolean;
 }) {
   const [from, setFrom] = useState<Square | null>(null);
   const [to, setTo] = useState<Square | null>(null);
@@ -66,8 +68,8 @@ function ChessBoard({
 
   return (
     <div className="chess-board">
-      {playerColor === "b" ? <WhiteClock chess={chess} initialTime={time} addedTime={addedTime} /> : <BlackClock chess={chess} initialTime={time} addedTime={addedTime} />}
-      {renderedBoard.map((row, i) => {
+      {!gameOver && playerColor === "b" ? <WhiteClock chess={chess} initialTime={time} addedTime={addedTime} /> : <BlackClock chess={chess} initialTime={time} addedTime={addedTime} />}
+      {!gameOver && renderedBoard.map((row, i) => {
         const renderedRow = playerColor === "b" ? [...row].reverse() : row;
 
         return (
@@ -144,7 +146,7 @@ function ChessBoard({
           </div>
         );
       })}
-      {playerColor === "b" ? <BlackClock chess={chess} initialTime={time} addedTime={addedTime} /> : <WhiteClock chess={chess} initialTime={time} addedTime={addedTime} />}
+      {!gameOver && playerColor === "b" ? <BlackClock chess={chess} initialTime={time} addedTime={addedTime} /> : <WhiteClock chess={chess} initialTime={time} addedTime={addedTime} />}
     </div>
   );
 }

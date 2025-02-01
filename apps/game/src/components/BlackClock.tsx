@@ -49,7 +49,7 @@ function BlackClock({ chess, initialTime, addedTime }: ClockProps) {
   return (
     <div className="text-white text-2xl font-popins font-bold bg-black p-2">
       {isNaN(blackTime) ? "00:00" : formatTime(blackTime)}
-      black
+      
     </div>
   );
 }
