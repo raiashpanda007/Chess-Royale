@@ -25,17 +25,17 @@ const Page: FC = () => {
   const { tournamentid } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [tournament, setTournament] = useState<Tournament>();
-  
-  const startTournament = async () =>{
+
+  const startTournament = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/api/tournament/start', {tournamentid: tournamentid});
-      if(response){
+      const response = await axios.post(
+        "http://localhost:3000/api/tournament/start",
+        { tournamentid: tournamentid }
+      );
+      if (response) {
         toast(response.data.data.message, {
           description: `Tournament ID: ${response.data.data.id}`,
-          
         });
-
-        
       }
     } catch (error) {
       toast("Failed to start the tournament", {
@@ -46,7 +46,7 @@ const Page: FC = () => {
         },
       });
     }
-  }
+  };
 
   const fetchTournament = async () => {
     const repsonse = await axios.get(
@@ -90,9 +90,11 @@ const Page: FC = () => {
               <h1 className="font-poppins text-5xl font-bold">
                 {tournament?.name}
               </h1>
-              <div className="flex justify-between">
-                <DeleteDialog tournamentid={tournamentid}/>
-              </div>
+              {session?.user.id === tournament?.admin.id && (
+                <div className="flex justify-between">
+                  <DeleteDialog tournamentid={tournamentid} />
+                </div>
+              )}
             </div>
           )}
           {loading ? (
@@ -123,22 +125,30 @@ const Page: FC = () => {
             <Select>
               <SelectTrigger className="w-[180px] font-poppins font-semibold">
                 <SelectValue placeholder="Round" />
+                
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
+              {tournament?.round ?tournament.round.map((round, index) => (
+                  <SelectItem key={index} value={index.toString()}>
+                    {index + 1}
+                  </SelectItem>
+                )):<SelectItem value="0">Not started</SelectItem>}
               </SelectContent>
             </Select>
 
             <Button className="font-poppins font-bold">
               Generate Next Round
             </Button>
-            {tournament?.status &&  tournament.status.toString() != "START" && tournament.admin.id === session?.user?.id &&(
-              <Button className="font-poppins font-bold" onClick={startTournament}>
-                Start Tournament
-              </Button>
-            ) }
+            {tournament?.status &&
+              tournament.status.toString() != "START" &&
+              tournament.admin.id === session?.user?.id && (
+                <Button
+                  className="font-poppins font-bold"
+                  onClick={startTournament}
+                >
+                  Start Tournament
+                </Button>
+              )}
           </div>
           <TabsDemo />
         </div>
