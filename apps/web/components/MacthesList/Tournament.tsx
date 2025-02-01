@@ -1,14 +1,4 @@
-import { Button } from "@workspace/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
+
 import {
   Tabs,
   TabsContent,
@@ -21,20 +11,14 @@ import Email from "next-auth/providers/email";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 
 import { FC } from "react";
+import { Match } from "@/types/Match";
 
-const TabsDemo: FC = () => {
-  const user1 = {
-    id: "1",
-    name: "John Doe",
-    email: "ravikantr535@gmail.com",
-    username: "johndoe",
-  };
-  const user2 = {
-    id: "2",
-    name: "Jane Doe",
-    email: "raiashwin@gmail.com",
-    username: "janedoe",
-  };
+interface TabsDemoProps {
+  matches: Match[];
+}
+
+const TabsDemo: FC<TabsDemoProps> = ({ matches }) => {
+  
   return (
     <Tabs defaultValue="match" className="w-5/6 h-16 font-poppins">
       <TabsList className="grid w-full grid-cols-2 h-16">
@@ -47,120 +31,27 @@ const TabsDemo: FC = () => {
       </TabsList>
       <TabsContent value="match">
         <ScrollArea className="w-full h-96 overflow-auto">
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
-
-          <MatchList
-            id="1"
-            AddedTime="1"
-            time="10"
-            joiningTime="2"
-            player1={user1}
-            player2={user2}
-            createdAt="2022"
-            round={{ roundid: "1", roundNumber: 2 }}
-            lastTime="21:00"
-            result={"NOT_DECIDED"}
-          />
+          { matches ? matches.map((match) => (
+            <MatchList
+              key={match.id}
+              id={match.id}
+              player1={match.player1}
+              player2={match.player2}
+              result={match.result}
+              
+              round={{ roundid: "1", roundNumber: 1 }}
+              time={match.time.toString()}
+              AddedTime={match.AddedTime.toString()}
+              
+            />
+          )):<div> 
+            <h1>Matches not found</h1>
+            </div>}
         </ScrollArea>
       </TabsContent>
       <TabsContent value="scorecard">
         <ScrollArea className="w-full  h-96 overflow-auto">
-          <ScoreCardList id="1" user={user1} score={1} />
+          {/* <ScoreCardList id="1" user={user1} score={1} />
           <ScoreCardList id="2" user={user2} score={0} />
           <ScoreCardList id="1" user={user1} score={1} />
           <ScoreCardList id="2" user={user2} score={0} />
@@ -171,7 +62,7 @@ const TabsDemo: FC = () => {
           <ScoreCardList id="1" user={user1} score={1} />
           <ScoreCardList id="2" user={user2} score={0} />
           <ScoreCardList id="1" user={user1} score={1} />
-          <ScoreCardList id="2" user={user2} score={0} />
+          <ScoreCardList id="2" user={user2} score={0} /> */}
         </ScrollArea>
       </TabsContent>
     </Tabs>

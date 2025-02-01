@@ -10,7 +10,7 @@ export interface Tournament {
     slug:string,
     admin:User,
     users:User[],
-    round:Round[]
+    rounds:Round[]
 }
 enum status {
     OPEN,

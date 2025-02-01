@@ -9,15 +9,10 @@ const getTournamentMatchesSchema = zod.object({
     
 })
 const getTournamentMatches = async (req: NextRequest) => {
-    // const currUser = await getServerSession();
-    // if (!currUser) {
-    //     return NextResponse.json(
-    //         new response(401, "Unauthorized", {}),
-    //         { status: 401 }
-    //     );
-    // }
+    console.log("User requested to fetch tournament matches:");
     const body = await req.json();
     const parsedData = getTournamentMatchesSchema.safeParse(body);
+
     if (!parsedData.success) {
         console.error("Zod parsing error:", parsedData.error);
         return NextResponse.json(
@@ -25,31 +20,37 @@ const getTournamentMatches = async (req: NextRequest) => {
             { status: 400 }
         );
     }
+
     const data = parsedData.data;
+
     try {
-        const matches = await prisma.round.findUnique({
-            where: {
-                id: data.roundid,
+        const round = await prisma.round.findUnique({
+            where: { id: data.roundid },
+            include: {
+                matches: {
+                    include: {
+                        player1: true, // Fetch player1 details
+                        player2: true, // Fetch player2 details
+                    },
+                },
             },
-            include:{
-                matches:true
-            }
-        })
-        if (!matches) {
+        });
+
+        if (!round) {
             return NextResponse.json(
                 new response(404, "Round not found", {}),
                 { status: 404 }
             );
         }
-        return NextResponse.json(new response(200,"Match Details", matches))
-        
+
+        return NextResponse.json(new response(200, "Match Details", round));
     } catch (error) {
         console.error("Error fetching tournament matches:", error);
         return NextResponse.json(
             new response(500, "Internal Server Error", {}),
             { status: 500 }
         );
-        
     }
-}
+};
+
 export default getTournamentMatches;

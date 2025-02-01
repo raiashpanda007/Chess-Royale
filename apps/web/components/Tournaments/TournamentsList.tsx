@@ -34,7 +34,7 @@ function TournamentsList({
     const joinContest = async (tournamentId:string) =>{
         try {
             const response = await axios.put('http://localhost:3000/api/tournament/join/userRequest', {tournamentId});
-            console.log(response);
+           
             if(response){
                 toast(response.data.data.message, {
                     description: `Tournament ID: ${response.data.data.id}`,

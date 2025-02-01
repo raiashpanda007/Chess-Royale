@@ -107,6 +107,7 @@ enum Result {
   DRAW
   NOT_PLAYED
   PLAYING
+  UNPLAYED
 }
 
 enum StatusTournament {

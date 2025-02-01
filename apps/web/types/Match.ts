@@ -1,8 +1,9 @@
+import type { User } from "./User";
 
 export interface Match {
     id:string,
-    player1:string,
-    player2:string,
+    player1:User,
+    player2:User,
     result:Result,
     winner:string,
     roundId:string | null,
