@@ -41,6 +41,8 @@ export default class TournamentGameHandler {
                     }
 
                     if (!match.player1Id || !match.player2Id) {
+                        const game = new Game({ socket, user }, {socket,user}, gameID);
+                        await game.gameComplete(match.player1Id ? "white" : "black");
                         return socket.send(
                             JSON.stringify({
                                 type: GAME_OVER,
@@ -50,6 +52,7 @@ export default class TournamentGameHandler {
                                 },
                             })
                         );
+
                     }
 
                     if (match.player1Id !== user.id && match.player2Id !== user.id) {

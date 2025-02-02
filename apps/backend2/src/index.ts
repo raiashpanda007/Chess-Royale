@@ -4,7 +4,7 @@ import router from "./routes/route"
 const app = express()
 app.use(
     cors({
-      origin: 'http://localhost:5173', // Your frontend URL
+      origin: 'http://localhost:3000', // Your frontend URL
       credentials: true, // Allow credentials (cookies, tokens, etc.)
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
       allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token','communityid','userid','postid'], // Allowed headers

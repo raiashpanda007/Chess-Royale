@@ -22,7 +22,7 @@ model User {
   player2Matches    Match[]     @relation("Player2Matches")
   adminTournaments  Tournament[] @relation("AdminTournaments")
   scoreCards        ScoreCard[] // Relation for score cards of the user
-  winnerTournaments Tournament[] @relation("TournamentWinner")
+  winnerTournaments TournamentWinner[] // Explicit relation to tournament winners
 }
 
 model Account {
@@ -55,9 +55,18 @@ model Tournament {
   AddedTime       Int
   logo            String?
   slug            String   @unique
-  winner          User?    @relation("TournamentWinner", fields: [winnerId], references: [id])
-  winnerId        String?
+  winnerTournaments TournamentWinner[] // Explicit relation to tournament winners
 }
+
+model TournamentWinner {
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  playerId     String
+  player       User       @relation(fields: [playerId], references: [id])
+
+  @@id([tournamentId, playerId])
+}
+
 
 model Round {
   id             String     @id @default(cuid())
@@ -74,7 +83,7 @@ model Match {
   player1Id     String
   player1       User       @relation("Player1Matches", fields: [player1Id], references: [id])
   player2Id     String?
-  player2       User?   @relation("Player2Matches", fields: [player2Id], references: [id])
+  player2       User?      @relation("Player2Matches", fields: [player2Id], references: [id])
   result        Result
   createdAt     DateTime   @default(now())
   lastTime      DateTime?
@@ -84,20 +93,17 @@ model Match {
   AddedTime     Int
 }
 
-
 model ScoreCard {
   tournamentId  String
   tournament    Tournament @relation(fields: [tournamentId], references: [id])
   playerId      String
   player        User       @relation(fields: [playerId], references: [id])
-  score         Int        // Score the player achieved in the solo game
+  score         Int        // Score the player achieved in the tournament
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-
   @@id([tournamentId, playerId])
 }
-
 
 enum Provider {
   GOOGLE
@@ -120,7 +126,7 @@ enum StatusTournament {
   FINISH
 }
 
-enum Visibility{
+enum Visibility {
   PUBLIC
   PRIVATE
 }

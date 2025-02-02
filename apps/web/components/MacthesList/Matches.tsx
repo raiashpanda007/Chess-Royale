@@ -34,6 +34,7 @@ const MatchList: FC<MatchesProps> = ({
   const [showResult, setShowResult] = useState<String>(result);
   const url =  `game?id=${session?.user.id}&username=${session?.user.email}&profilePicture=${session?.user.image}&gameId=${id}`;
   useEffect(() => {
+    console.log(result);
     if (result === "WINNER1") {
       setShowResult("1-0");
       setShowJoinButton(false);
@@ -48,6 +49,7 @@ const MatchList: FC<MatchesProps> = ({
     }
 
     if (player1?.id === session?.user.id || player2?.id === session?.user.id) {
+      if(result === "NOT_PLAYED")
       setShowJoinButton(true);
     }
   }, [result]);

@@ -70,6 +70,25 @@ const Page: FC = () => {
       });
     }
   };
+  const generateNextRound = async () => {
+    try {
+      const newRound = await axios.post(
+        "http://localhost:3001/generate_next_round",
+        { tournamentID: tournament?.id, adminID: tournament?.admin.id }
+      );
+      if(newRound.data.status === 201){
+        toast("Winner of the tournament is ")
+      }
+      
+      await getRoundMatches();
+    } catch (error) {
+      toast("Failed to generate next round", {
+        description: JSON.stringify(error),
+        action: { label: "Retry", onClick: generateNextRound },
+      });
+    }
+  };
+  
 
   // Fetch matches of selected round
   const getRoundMatches = useCallback(async () => {
@@ -178,7 +197,7 @@ const Page: FC = () => {
               </SelectContent>
             </Select>
 
-            <Button className="font-bold">Generate Next Round</Button>
+            {tournament?.admin.id === session?.user.id && <Button className="font-bold" onClick={generateNextRound}>Generate Next Round</Button>}
             {tournament?.status.toString() !== "START" &&
               tournament?.admin.id === session?.user?.id && (
                 <Button className="font-bold" onClick={startTournament}>

@@ -34,7 +34,7 @@ const pairing_algo = asyncHandler(async (req, res) => {
         if(tournament.numberOfRounds === tournament.numberOfPlayers - 1){
             const winner = await getWinner(tournament.id);
             if(winner)
-            return res.status(200).json(new response(200, "Tournament ended", winner));
+            return res.status(200).json(new response(201, "Tournament ended", winner));
         }
 
         // Step 2: Fetch Players & Scores

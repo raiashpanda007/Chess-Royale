@@ -55,24 +55,36 @@ const getWinner = async (tournamentId: string) => {
         buchholzScores.set(playerId, buchholzScore);
     }
 
-    // Sort players by score first, then by Buchholz score
-    scoreCard.sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return (buchholzScores.get(b.playerId) || 0) - (buchholzScores.get(a.playerId) || 0);
-    });
+    // Find the highest score
+    const highestScore = Math.max(...scoreCard.map(player => player.score));
 
-    // Get the tournament winner
-    const winner = scoreCard[0];
+    // Get all players with the highest score
+    let topPlayers = scoreCard.filter(player => player.score === highestScore);
 
-    if (!winner) return null;
+    // Find the highest Buchholz score among them
+    const highestBuchholz = Math.max(...topPlayers.map(player => buchholzScores.get(player.playerId) || 0));
 
-    // Update the tournament with the winner
-    await prisma.tournament.update({
-        where: { id: tournamentId },
-        data: { winnerId: winner.playerId },
-    });
+    // Get all players with the highest Buchholz score
+    let winners = topPlayers.filter(player => (buchholzScores.get(player.playerId) || 0) === highestBuchholz);
 
-    return winner;
+    // Store the winners in the TournamentWinner table
+    await prisma.$transaction([
+        // Insert all winners into TournamentWinner table
+        prisma.tournamentWinner.createMany({
+            data: winners.map(winner => ({
+                tournamentId,
+                playerId: winner.playerId,
+            })),
+            skipDuplicates: true, // Avoid duplicate entries
+        }),
+        // Update tournament status to FINISH
+        prisma.tournament.update({
+            where: { id: tournamentId },
+            data: { status: "FINISH" },
+        }),
+    ]);
+
+    return winners;
 };
 
 export default getWinner;
