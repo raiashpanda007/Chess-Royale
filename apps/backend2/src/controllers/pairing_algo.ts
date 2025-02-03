@@ -2,7 +2,6 @@ import asyncHandler from "../utils/asyncHandler";
 import { PrismaClient } from "@workspace/db";
 import { PairingAlogrithm, Players } from "@workspace/types";
 import response from "../utils/repsonse";
-import firstMatching from "../services/Match Making/randomMatching";
 import matchMaking from "../services/Match Making/MatchMaking";
 import getWinner from "../services/Find Winner/TournamentWinner";
 

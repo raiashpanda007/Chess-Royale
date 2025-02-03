@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
+import { User } from "@/types/User";
 
 const Page: FC = () => {
   const router = useRouter();
@@ -30,6 +31,7 @@ const Page: FC = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [round, setRound] = useState<string>("");
   const [matches, setMatches] = useState<Match[]>([]);
+  const [winner,setWinner] = useState<User[] | null>(null);
 
   // Fetch tournament details
   const fetchTournament = useCallback(async () => {
@@ -78,6 +80,7 @@ const Page: FC = () => {
       );
       if(newRound.data.status === 201){
         toast("Winner of the tournament is ")
+        setWinner(newRound.data.data);
       }
       
       await getRoundMatches();
@@ -207,7 +210,7 @@ const Page: FC = () => {
           </div>
 
           {/* Matches List */}
-          <TabsDemo matches={matches}/>
+          <TabsDemo matches={matches} winner={winner} tournamentid={tournament?.id}/>
         </div>
       </div>
     </div>
