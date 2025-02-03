@@ -2,7 +2,7 @@ import { Chess } from "chess.js";
 import { WebSocket } from "ws";
 import { CHECKMATE, GAME_INITIALIZE, GAME_OVER, INVALID_MOVE, MOVE, START } from "./message";
 import { PrismaClient } from "@workspace/db";
-import type { User,Move } from "@workspace/types";
+import type { User, Move } from "@workspace/types";
 const prisma = new PrismaClient();
 export class Game {
     public id: string
@@ -10,8 +10,8 @@ export class Game {
     public player2: { socket: WebSocket, user: User }
     private board: Chess
     private movesCount: number;
-
-    constructor(player1: { socket: WebSocket, user: User }, player2: { socket: WebSocket, user: User }, id: string) {
+    private isTournamentGame: boolean;
+    constructor(player1: { socket: WebSocket, user: User }, player2: { socket: WebSocket, user: User }, id: string, tournamentGame: boolean) {
         this.id = id;
         this.player1 = player1;
         this.player2 = player2;
@@ -19,55 +19,70 @@ export class Game {
         this.movesCount = 0;
 
         this.player1.socket.send(JSON.stringify({
-            type: START ,
+            type: START,
             color: "w"
         }))
         this.player2.socket.send(JSON.stringify({
             type: START,
             color: 'b'
         }))
+        this.isTournamentGame = tournamentGame;
     }
-    checkPromotion(move:Move) {
+    checkPromotion(move: Move) {
         const promotionRank = this.board.turn() === "w" ? 8 : 1; // 8th for white, 1st for black
         const fromSquare = move.from[1];
         const toSquare = move.to[1];
-        if(fromSquare ===null || toSquare === null){
+        if (fromSquare === null || toSquare === null) {
             return false;
         }
-        
+
 
         return fromSquare === (promotionRank - 1).toString() && toSquare === (promotionRank).toString();
     }
     async gameComplete(winner: string) {
+        const tournament = await prisma.tournament.findFirst({
+            where: {
+                rounds: {
+                    some: {
+                        matches: {
+                            some: { id: this.id }
+                        }
+                    }
+                }
+            },
+            select: { id: true }
+        });
+    
         await prisma.$transaction(async (tx) => {
-            if (winner === 'draw') {
-                await tx.match.update({
-                    where: {
-                        id: this.id
-                    },
-                    data: {
-                        result: 'DRAW'
-                    }
-                })
-            } else {
-                winner === 'white' ? await tx.match.update({
-                    where: {
-                        id: this.id
-                    },
-                    data: {
-                        result: 'WINNER1'
-                    }
-                }) : await tx.match.update({
-                    where: {
-                        id: this.id
-                    },
-                    data: {
-                        result: 'WINNER2'
-                    }
-                })
+            // Update match result
+            await tx.match.update({
+                where: { id: this.id },
+                data: { result: winner === "draw" ? "DRAW" : winner === "white" ? "WINNER1" : "WINNER2" }
+            });
+    
+            // If it's a tournament game, update the scorecards
+            if (tournament?.id) {
+                if (winner === "draw") {
+                    await tx.scoreCard.updateMany({
+                        where: {
+                            tournamentId: tournament.id,
+                            playerId: { in: [this.player1.user.id, this.player2.user.id] }
+                        },
+                        data: { score: { increment: 0.5 } }
+                    });
+                } else {
+                    await tx.scoreCard.update({
+                        where: {
+                            tournamentId_playerId: {
+                                playerId: winner === "white" ? this.player1.user.id : this.player2.user.id,
+                                tournamentId: tournament.id
+                            }
+                        },
+                        data: { score: { increment: 1 } }
+                    });
+                }
             }
-
-        })
+        });
     }
 
     async makeMove(socket: WebSocket, move: Move) {
@@ -80,7 +95,7 @@ export class Game {
         }
 
         try {
-            
+
             if (this.checkPromotion(move)) {
                 if (!move.promotion) {
                     // Ask the frontend for the promotion piece selection
@@ -108,14 +123,14 @@ export class Game {
             }));
             return;
         }
-        
+
         if (this.board.isGameOver()) {
             const winner = this.board.isCheckmate()
                 ? this.board.turn() === "w" ? "black" : "white"
                 : "draw";
 
             // Persist the result to the databas()e
-             await this.gameComplete(winner);
+            await this.gameComplete(winner);
 
             const payload = winner ? {
                 winner,

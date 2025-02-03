@@ -124,7 +124,8 @@ export default class GameHandler {
             const game = new Game(
               { socket: pendingUserSocket, user: pendingUser.user },
               { socket, user },
-              newGame.id
+              newGame.id,
+              false
             );
             this.games.push(game);
 
