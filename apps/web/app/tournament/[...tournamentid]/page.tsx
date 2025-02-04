@@ -39,12 +39,8 @@ const Page: FC = () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch`,
-
-        {
-          headers: { tournamentid },
-        }
+        { headers: { tournamentid } }
       );
-
       setTournament(response.data.data);
     } catch (error) {
       toast.error("Failed to fetch tournament details");
@@ -59,13 +55,10 @@ const Page: FC = () => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/start`,
         { tournamentid }
-
       );
       if (response) {
         setMatches(response.data.data.matches);
-        // reload
         setStartRound(true);
-
       }
     } catch (error) {
       toast("Failed to start the tournament", {
@@ -74,12 +67,15 @@ const Page: FC = () => {
       });
     }
   };
+
+  // Generate next round
   const generateNextRound = async () => {
     try {
       const newRound = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}:3001/generate_next_round`,
         { tournamentID: tournament?.id, adminID: tournament?.admin.id }
       );
+      console.log(newRound);
       if (newRound.data.status === 201) {
         toast("Winner of the tournament is ");
         setWinner(newRound.data.data);
@@ -101,16 +97,11 @@ const Page: FC = () => {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch/matches`,
-
         { roundid: round }
       );
       if (response.data) {
         setMatches(response.data.data.matches);
       }
-
-      toast("Round matches fetched", {
-        description: JSON.stringify(response.data.data),
-      });
     } catch (error) {
       toast("Failed to get round matches", {
         description: JSON.stringify(error),
@@ -118,11 +109,13 @@ const Page: FC = () => {
       });
     }
   }, [round]);
-  useEffect(()=>{
-    if(tournament?.status.toString() === "START" && !startRound && tournament?.admin.id === session?.user?.id){
+
+  // Effect to check if the tournament has started
+  useEffect(() => {
+    if (tournament?.status?.toString() === "START") {
       setStartRound(true);
     }
-  })
+  }, [tournament]);
 
   useEffect(() => {
     fetchTournament();
@@ -130,7 +123,6 @@ const Page: FC = () => {
 
   useEffect(() => {
     getRoundMatches();
-    console.log("round matches", matches);
   }, [getRoundMatches]);
 
   return (
@@ -190,6 +182,7 @@ const Page: FC = () => {
         {/* Round Selection & Controls */}
         <div className="w-full h-full p-3 flex flex-col items-center">
           <div className="w-full h-16 flex justify-between border">
+            {/* Round Selection (Visible to Everyone) */}
             <Select onValueChange={(value) => setRound(value)}>
               <SelectTrigger className="w-[180px] font-semibold">
                 <SelectValue placeholder="Select Round" />
@@ -212,19 +205,16 @@ const Page: FC = () => {
                 Generate Next Round
               </Button>
             )}
-            {startRound && (
-                <Button className="font-bold" onClick={startTournament}>
-                  Start Tournament
-                </Button>
-              )}
+
+            {!startRound && tournament?.admin.id === session?.user.id && (
+              <Button className="font-bold" onClick={startTournament}>
+                Start Tournament
+              </Button>
+            )}
           </div>
 
           {/* Matches List */}
-          <TabsDemo
-            matches={matches}
-            winner={winner}
-            tournamentid={tournament?.id}
-          />
+          <TabsDemo matches={matches} winner={winner} tournamentid={tournament?.id} />
         </div>
       </div>
     </div>

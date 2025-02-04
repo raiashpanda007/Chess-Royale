@@ -1,7 +1,7 @@
 import { NextRequest,NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import NEXT_AUTH_CONFIG from "../auth";
-import { PrismaClient } from "@workspace/db";
+import {PrismaClient} from "@workspace/db"
 import response from "@/app/utils/response";
 
 const prisma = new PrismaClient();
