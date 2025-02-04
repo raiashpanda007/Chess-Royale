@@ -1,0 +1,65 @@
+name: chess-royale
+services:
+  db:
+    image: postgres:17
+    container_name: postgres_container
+    environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: admin
+        POSTGRES_DB: chessdb
+    ports:
+      - "5435:5432"
+
+  redis:
+    image: redis:7.4.1
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    
+  backend:
+    build: ./apps/backend
+    container_name: backend_container
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://admin:admin@db:5432/chessdb
+      - REDIS_URL=redis://redis:6379
+    restart: unless-stopped
+    
+  backend2:
+    build: ./apps/backend2
+    container_name: backend2_container
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://admin:admin@db:5432/chessdb
+      - REDIS_URL=redis://redis:6379
+    restart: unless-stopped
+
+  web:
+    build: ./apps/web
+    container_name: web_container
+    depends_on:
+      - backend
+      - backend2
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+  game:
+    build: ./apps/game
+    container_name: game_container
+    depends_on:
+      - backend
+      - backend2
+    ports:
+      - "5173:5173"
+    restart: unless-stopped  
+
+    
+
