@@ -71,7 +71,7 @@ const MatchList: FC<MatchesProps> = ({
       </div>
       <div className="flex flex-col items-center">
         {showJoinButton ? (
-          <Button className="font-poppins" variant={"secondary"} onClick={() => router.push(`http://localhost:5173/${url}`)}>
+          <Button className="font-poppins" variant={"secondary"} onClick={() => router.push(`${process.env.NEXT_PUBLIC_BASE_URL}:5173/${url}`)}>
             Join
           </Button>
         ) : (

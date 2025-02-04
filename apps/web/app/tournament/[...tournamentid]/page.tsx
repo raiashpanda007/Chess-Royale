@@ -31,21 +31,21 @@ const Page: FC = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [round, setRound] = useState<string>("");
   const [matches, setMatches] = useState<Match[]>([]);
-  const [winner,setWinner] = useState<User[] | null>(null);
+  const [winner, setWinner] = useState<User[] | null>(null);
+  const [startRound, setStartRound] = useState<boolean>(false);
 
   // Fetch tournament details
   const fetchTournament = useCallback(async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/tournament/fetch",
+        `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch`,
+
         {
           headers: { tournamentid },
         }
-
       );
-      
+
       setTournament(response.data.data);
-    
     } catch (error) {
       toast.error("Failed to fetch tournament details");
     } finally {
@@ -57,12 +57,14 @@ const Page: FC = () => {
   const startTournament = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/tournament/start",
+        `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/start`,
         { tournamentid }
+
       );
       if (response) {
         setMatches(response.data.data.matches);
-        
+        // reload
+        setStartRound(true);
 
       }
     } catch (error) {
@@ -75,14 +77,14 @@ const Page: FC = () => {
   const generateNextRound = async () => {
     try {
       const newRound = await axios.post(
-        "http://localhost:3001/generate_next_round",
+        `${process.env.NEXT_PUBLIC_BASE_URL}:3001/generate_next_round`,
         { tournamentID: tournament?.id, adminID: tournament?.admin.id }
       );
-      if(newRound.data.status === 201){
-        toast("Winner of the tournament is ")
+      if (newRound.data.status === 201) {
+        toast("Winner of the tournament is ");
         setWinner(newRound.data.data);
       }
-      
+
       await getRoundMatches();
     } catch (error) {
       toast("Failed to generate next round", {
@@ -91,7 +93,6 @@ const Page: FC = () => {
       });
     }
   };
-  
 
   // Fetch matches of selected round
   const getRoundMatches = useCallback(async () => {
@@ -99,13 +100,14 @@ const Page: FC = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/tournament/fetch/matches",
+        `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch/matches`,
+
         { roundid: round }
       );
-      if(response.data){
+      if (response.data) {
         setMatches(response.data.data.matches);
       }
-      
+
       toast("Round matches fetched", {
         description: JSON.stringify(response.data.data),
       });
@@ -116,6 +118,11 @@ const Page: FC = () => {
       });
     }
   }, [round]);
+  useEffect(()=>{
+    if(tournament?.status.toString() === "START" && !startRound && tournament?.admin.id === session?.user?.id){
+      setStartRound(true);
+    }
+  })
 
   useEffect(() => {
     fetchTournament();
@@ -200,9 +207,12 @@ const Page: FC = () => {
               </SelectContent>
             </Select>
 
-            {tournament?.admin.id === session?.user.id && <Button className="font-bold" onClick={generateNextRound}>Generate Next Round</Button>}
-            {tournament?.status.toString() !== "START" &&
-              tournament?.admin.id === session?.user?.id && (
+            {tournament?.admin.id === session?.user.id && (
+              <Button className="font-bold" onClick={generateNextRound}>
+                Generate Next Round
+              </Button>
+            )}
+            {startRound && (
                 <Button className="font-bold" onClick={startTournament}>
                   Start Tournament
                 </Button>
@@ -210,7 +220,11 @@ const Page: FC = () => {
           </div>
 
           {/* Matches List */}
-          <TabsDemo matches={matches} winner={winner} tournamentid={tournament?.id}/>
+          <TabsDemo
+            matches={matches}
+            winner={winner}
+            tournamentid={tournament?.id}
+          />
         </div>
       </div>
     </div>

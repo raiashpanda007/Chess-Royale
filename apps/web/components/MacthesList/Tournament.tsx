@@ -36,7 +36,8 @@ const TabsDemo: FC<TabsDemoProps> = ({ matches, winner, tournamentid }) => {
       if (!tournamentid) return;
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/tournament/fetch/scorecard",
+          `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch/scorecard`,
+          
           { headers: { tournamentid } }
         );
         if (response.data.data) {

@@ -22,7 +22,8 @@ function DeleteDialog({tournamentid}:DeleteDialogProps) {
     const deleteTournament = async () => {
         try {
           const repsonse = await axios.delete(
-            "http://localhost:3000/api/tournament/delete",
+            `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/delete`,
+            
             {
               headers: {
                 tournamentid: tournamentid,

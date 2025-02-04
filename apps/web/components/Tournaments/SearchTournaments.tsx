@@ -5,7 +5,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Search as SearchIcon } from "@mui/icons-material";
 import axios from "axios";
-
+import type { Tournament } from "@/types/Tournament";
 interface User {
   id: string;
   name: string;
@@ -13,14 +13,7 @@ interface User {
   profilePicture?: string;
   username: string;
 }
-interface Tournament {
-  id: string;
-  name: string;
-  users: User[];
-  logo: string;
-  status: string;
-  numberOfPlayers: number;
-}
+
 enum status {
   OPEN,
   FILLED,
@@ -42,14 +35,16 @@ function SearchTournaments({
       if (search === "") {
         try {
           const res = await axios.get(
-            "http://localhost:3000/api/tournament/list"
+            `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/list`
+            
           );
           setTournaments(res.data.data);
         } catch (error) {}
       } else {
         try {
           const res = await axios.post(
-            "http://localhost:3000/api/tournament/search",
+            `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/search`,
+            
             { search }
           );
           setTournaments(res.data.data);

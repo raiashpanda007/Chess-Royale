@@ -6,7 +6,7 @@ export default class RedisClient {
 
   // Private constructor to prevent direct instantiation
   private constructor() {
-    this.client = createClient({ url: 'redis://localhost:6379' });
+    this.client = createClient({ url: process.env.REDIS_URL });
 
     // Handle connection events
     this.client.on('connect', () => {

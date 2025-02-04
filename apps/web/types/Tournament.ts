@@ -11,6 +11,7 @@ export interface Tournament {
     admin:User,
     users:User[],
     rounds:Round[]
+    
 }
 enum status {
     OPEN,

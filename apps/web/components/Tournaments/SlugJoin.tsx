@@ -13,7 +13,8 @@ const Slugjoin: React.FC = () => {
     const joinTournamentSlug = async (slug: string) => {
         try {
           const res = await axios.put(
-            `http://localhost:3000/api/tournament/join/slug`,
+
+            `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/join/slug`,
             {
               slug,
             }

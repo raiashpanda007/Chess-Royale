@@ -25,7 +25,7 @@ function WinnerCard({ user, draw, method }: WinnerAlertProps) {
           <p>{method}</p>
         </>
       )}
-      <Button onClick={() => (window.location.href = "http://localhost:3000")}>
+      <Button onClick={() => (window.location.href = `${import.meta.env.VITE_BASE_URL}:3000`)}>
         Back to Home
       </Button>
     </div>

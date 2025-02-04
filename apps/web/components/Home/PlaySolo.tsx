@@ -51,7 +51,7 @@ const PlaySolo: FC = () => {
           </SelectContent>
         </Select>
         <DialogFooter>
-        <Button type="submit" onClick={()=> router.push(`http://localhost:5173/${url}`)}>Start a solo game</Button>
+      <Button type="submit" onClick={()=> router.push(`${process.env.NEXT_PUBLIC_BASE_URL}:5173/${url}`)}>Start a solo game</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

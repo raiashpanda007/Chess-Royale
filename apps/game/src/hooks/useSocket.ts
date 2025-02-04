@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GAME_OVER, MATCH_MAKING } from "../types/messagetypes";
+import {  MATCH_MAKING } from "../types/messagetypes";
 import { useSearchParams } from "react-router-dom";
 
 interface User {
@@ -33,7 +33,7 @@ const useSocket = () => {
   useEffect(() => {
     if (!user) return; // Wait until the user is set
 
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`${import.meta.env.VITE_WEB_SOCKET_URL}:8080`);
     const payload = user.gameId ? { user, gameId: user.gameId } : { user };
     ws.onopen = () => {
       console.log("Connected to the sockets");

@@ -24,9 +24,32 @@ async function getTournamentsList(req:NextRequest) {
                 }
             }
         })
-        
+        const getprivateTournaments = await prisma.tournament.findMany({
+            where:{
+                visibility: "PRIVATE",
+                OR:[
+                    {
+                        users:{
+                            some:{
+                                id:curruser.user.id
+                            }
+                        }
+                    },
+                    {
+                        adminId:curruser.user.id
+                    }
+                ]
+            },include:{
+                users:{
+                    select:{
+                        id:true
+                    }
+                }
+            }
+        })
+        const tournaments = getTournamentsList.concat(getprivateTournaments);
         return NextResponse.json(
-            new response(200, "Tournament details", getTournamentsList),
+            new response(200, "Tournament details", tournaments),
             { status: 200 }
         );
         

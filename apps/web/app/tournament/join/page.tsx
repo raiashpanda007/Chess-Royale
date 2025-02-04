@@ -5,14 +5,9 @@ import SearchTournaments from "@/components/Tournaments/SearchTournaments";
 import TournamentsList from "@/components/Tournaments/TournamentsList";
 import Slugjoin from "@/components/Tournaments/SlugJoin";
 import type { User } from "@/types/User";
-interface Tournament {
-  id: string;
-  name: string;
-  users: User[];
-  logo: string;
-  status: string;
-  numberOfPlayers: number;
-}
+import type { Tournament } from "@/types/Tournament";
+
+
 import axios from "axios";
 function page() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -20,7 +15,7 @@ function page() {
     const fetchTournaments = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/api/tournament/list"
+          `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/list`
         );
         setTournaments(res.data.data);
       } catch (error) {
@@ -31,6 +26,7 @@ function page() {
   }, []);
   return (
     <div className="h-screen w-full font-poppins">
+      
       <div className="relative top-16 w-full h-40 items-center justify-evenly flex ">
         <div className="w-3/6 h-36 flex justify-center items-center space-x-3">
           <SearchTournaments tournaments={tournaments} setTournaments={setTournaments} />
@@ -56,7 +52,7 @@ function page() {
                 name={tournament.name}
                 users={tournament.users?.map((user) => user.id) as string[]}
                 logo={tournament.logo}
-                tournamentstatus={tournament.status}
+                tournamentstatus={tournament.status.toString()}
                 numberOfPlayers={tournament.numberOfPlayers}
               />
             ))

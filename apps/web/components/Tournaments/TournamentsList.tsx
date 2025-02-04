@@ -16,7 +16,7 @@ interface TournamentsListProps {
   id: string;
   name: string;
   users: string[];
-  logo: string;
+  logo: string|undefined;
   tournamentstatus: string;
   numberOfPlayers: number;
 }
@@ -33,7 +33,7 @@ function TournamentsList({
     const router = useRouter();
     const joinContest = async (tournamentId:string) =>{
         try {
-            const response = await axios.put('http://localhost:3000/api/tournament/join/userRequest', {tournamentId});
+            const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/join/userRequest`, {tournamentId});
            
             if(response){
                 toast(response.data.data.message, {

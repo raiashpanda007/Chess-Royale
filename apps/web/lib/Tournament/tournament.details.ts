@@ -1,7 +1,6 @@
 import {PrismaClient} from '@workspace/db';
 import { NextRequest,NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { z as zod } from 'zod';
 import NEXT_AUTH_CONFIG from '../auth';
 import response from '@/app/utils/response';
 
