@@ -11,7 +11,7 @@
     RUN pnpm install --frozen-lockfile
     
     # Optional: Ensure that Prisma is correctly generated
-    RUN pnpm prisma generate --schema=packages/database/prisma/schema.prisma
+    RUN cd packages/database/prisma && pnpm prisma generate 
     
     # Expose only ports needed for development (if any)
     EXPOSE 3000 3001 8080 6379

@@ -79,7 +79,7 @@ const TabsDemo: FC<TabsDemoProps> = ({ matches, winner, tournamentid }) => {
             ))
           ) : (
             <div>
-              <h1>Matches not found</h1>
+              <h1 className="text-white">Matches not found or try to select new Round</h1>
             </div>
           )}
         </ScrollArea>

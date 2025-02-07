@@ -70,7 +70,7 @@ function TournamentsList({
   return (
     <div className="w-full h-36 rounded-3xl flex items-center hover:border hover:bg-gray-900 animate-in cursor-pointer font-poppins" >
       <div className="w-1/6 flex items-centter justify-center ">
-        <img src={logo} alt="logo" className="w-20 h-20 rounded-full" />
+        <img src={logo ? logo : '/tournamentlogo.jpg'} alt="logo" className="w-20 h-20 rounded-full" />
       </div>
       <div className="w-2/4 flex flex-col justify-center ">
         <h1 onClick={()=>router.push(`/tournament/${id}`)} className="text-3xl font-bold hover:underline">{name}</h1>

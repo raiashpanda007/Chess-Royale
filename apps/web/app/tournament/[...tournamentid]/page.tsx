@@ -134,7 +134,7 @@ const Page: FC = () => {
           {loading ? (
             <Skeleton className="h-28 w-28 rounded-full" />
           ) : (
-            <img src={tournament?.logo} className="h-28 w-28 rounded-full" />
+            <img src={tournament?.logo ? tournament.logo : '/tournamentlogo.jpg'} className="h-28 w-28 rounded-full" />
           )}
         </div>
 
