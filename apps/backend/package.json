@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "tsbuild": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js ",
-    "dev":"node dist/index.js"
+    "dev":"node dist/index.js",
+    "start": "pnpm tsbuild && pnpm dev"
   },
   "keywords": [],
   "author": "",

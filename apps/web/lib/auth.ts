@@ -1,5 +1,5 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient } from '@workspace/db/';
+import { PrismaClient } from '@workspace/db';
 const prisma = new PrismaClient();
 import GoogleProvider from "next-auth/providers/google";
 const NEXT_AUTH_CONFIG = {

@@ -11,9 +11,8 @@ interface WinnerAlertProps {
   draw: boolean | null;
   method: string | null;
 }
-import { useNavigate } from "react-router-dom";
 function WinnerCard({ user, draw, method }: WinnerAlertProps) {
-  const navigate = useNavigate();
+  
   return (
     <div className="text-white text-center">
       <h1>Game Over</h1>

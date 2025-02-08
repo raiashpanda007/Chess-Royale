@@ -1,11 +1,13 @@
 "use client"
+import { FC } from 'react';
 interface LogoProps {
   label: string;
   type:boolean
   
 }
 
-const Logo = ({label,type=false}:LogoProps) => {
+const Logo: FC<LogoProps> = (props) => {
+  const { label, type = false } = props;
   return (
     <div className={type?"relative  min-w-32 h-16 overflow-hidden" :"relative sm:min-w-96 sm:h-36 min-w-32 h-16  overflow-hidden animate-slideInFromBelow opacity-0"} >
       <img

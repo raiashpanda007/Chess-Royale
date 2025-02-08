@@ -262,7 +262,7 @@ export default class GameHandler {
     });
 
     socket.on("close", () => {
-      console.log("User disconnected:", user.id);
+      // console.log("User disconnected:", user.id);
       this.removeUser(socket);
     });
   }

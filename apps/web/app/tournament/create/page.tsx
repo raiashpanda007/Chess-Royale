@@ -1,11 +1,11 @@
 import { getServerSession } from "next-auth";
-import { FC } from "react";
+import { ReactElement } from "react";
 import NEXT_AUTH_CONFIG from "@/lib/auth";
 import CreateTournamentForm from "@/components/Forms/CreateTournament";
 import useRequireAuth from "@/hooks/checkvalidation";
 import { redirect } from "next/navigation";
 
-const Page: FC = async () => {
+const Page = async (): Promise<ReactElement> => { 
 
   const session = await getServerSession(NEXT_AUTH_CONFIG);
   if (!session) {
