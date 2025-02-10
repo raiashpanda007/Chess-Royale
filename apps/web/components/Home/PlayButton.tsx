@@ -17,7 +17,7 @@ function PlayButton() {
         <PlayRoyale/>
 
       ) : (
-        <Button variant={"default"} className="font-poppins font-bold" onClick={() => router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/signin`)}>
+        <Button variant={"default"} className="font-poppins font-bold" onClick={() => router.push(`http://web.chesssroyale.games/api/auth/signin`)}>
           Play Royale
         </Button>
       )}

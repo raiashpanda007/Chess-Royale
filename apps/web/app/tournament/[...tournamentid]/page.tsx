@@ -38,7 +38,7 @@ const Page: FC = () => {
   const fetchTournament = useCallback(async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch`,
+        `http://web.chesssroyale.games/api/tournament/fetch`,
         { headers: { tournamentid } }
       );
       setTournament(response.data.data);
@@ -53,7 +53,7 @@ const Page: FC = () => {
   const startTournament = async () => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/start`,
+        `http://web.chesssroyale.games/api/tournament/start`,
         { tournamentid }
       );
       if (response) {
@@ -72,7 +72,7 @@ const Page: FC = () => {
   const generateNextRound = async () => {
     try {
       const newRound = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}:3001/generate_next_round`,
+        `http://api.chesssroyale.games/generate_next_round`,
         { tournamentID: tournament?.id, adminID: tournament?.admin.id }
       );
       console.log(newRound);
@@ -96,7 +96,7 @@ const Page: FC = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/fetch/matches`,
+        `http://web.chesssroyale.games/tournament/fetch/matches`,
         { roundid: round }
       );
       if (response.data) {

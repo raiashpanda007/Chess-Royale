@@ -14,7 +14,7 @@ const Slugjoin: React.FC = () => {
         try {
           const res = await axios.put(
 
-            `${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/join/slug`,
+            `http://web.chesssroyale.games/api/tournament/join/slug`,
             {
               slug,
             }

@@ -33,7 +33,7 @@ function TournamentsList({
     const router = useRouter();
     const joinContest = async (tournamentId:string) =>{
         try {
-            const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}:3000/api/tournament/join/userRequest`, {tournamentId});
+            const response = await axios.put(`http://web.chesssroyale.games/api/tournament/join/userRequest`, {tournamentId});
            
             if(response){
                 toast(response.data.data.message, {
