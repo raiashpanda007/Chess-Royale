@@ -36,7 +36,7 @@ const TabsDemo: FC<TabsDemoProps> = ({ matches, winner, tournamentid }) => {
       if (!tournamentid) return;
       try {
         const response = await axios.get(
-          `http://web.chesssroyale.games/api/tournament/fetch/scorecard`,
+          `https://web.chesssroyale.games/api/tournament/fetch/scorecard`,
           
           { headers: { tournamentid } }
         );

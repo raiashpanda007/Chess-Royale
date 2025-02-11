@@ -51,7 +51,7 @@ const PlaySolo: FC = () => {
           </SelectContent>
         </Select>
         <DialogFooter>
-      <Button type="submit" onClick={()=> router.push(`http://game.chesssroyale.games/${url}`)}>Start a solo game</Button>
+      <Button type="submit" onClick={()=> router.push(`https://game.chesssroyale.games/${url}`)}>Start a solo game</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -33,7 +33,7 @@ const useSocket = () => {
   useEffect(() => {
     if (!user) return; // Wait until the user is set
 
-    const ws = new WebSocket(`${import.meta.env.VITE_WEB_SOCKET_URL}:8080`);
+    const ws = new WebSocket(`wss://backend.chesssroyale.games/ws/`);
     const payload = user.gameId ? { user, gameId: user.gameId } : { user };
     ws.onopen = () => {
       console.log("Connected to the sockets");

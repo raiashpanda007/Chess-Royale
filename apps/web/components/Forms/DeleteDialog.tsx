@@ -22,7 +22,7 @@ function DeleteDialog({tournamentid}:DeleteDialogProps) {
     const deleteTournament = async () => {
         try {
           const repsonse = await axios.delete(
-            `http://web.chesssroyale.games/api/tournament/delete`,
+            `https://web.chesssroyale.games/api/tournament/delete`,
             
             {
               headers: {

@@ -24,7 +24,7 @@ function WinnerCard({ user, draw, method }: WinnerAlertProps) {
           <p>{method}</p>
         </>
       )}
-      <Button onClick={() => (window.location.href = `http://web.chesssroyale.games`)}>
+      <Button onClick={() => (window.location.href = `https://web.chesssroyale.games`)}>
         Back to Home
       </Button>
     </div>

@@ -35,7 +35,7 @@ function SearchTournaments({
       if (search === "") {
         try {
           const res = await axios.get(
-            `http://chesssroyale.games/api/tournament/list`
+            `https://chesssroyale.games/api/tournament/list`
             
           );
           setTournaments(res.data.data);
@@ -43,7 +43,7 @@ function SearchTournaments({
       } else {
         try {
           const res = await axios.post(
-            `http://chesssroyale.games/api/tournament/search`,
+            `https://chesssroyale.games/api/tournament/search`,
             
             { search }
           );

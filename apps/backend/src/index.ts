@@ -24,6 +24,7 @@ wss.on("connection", function connection(ws) {
                     tournamentGameHandler.addUser(ws, user, gameId);
                 else gameHandler.addUser(ws, user);
                 ws.send(JSON.stringify({ type: "match_making", payload: "success" }));
+                console.log("User added to the game");
             }
         } catch (error) {
             console.error("Invalid message received:", data.toString(), error);
