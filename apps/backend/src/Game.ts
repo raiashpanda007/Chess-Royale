@@ -53,7 +53,7 @@ export class Game {
             select: { id: true }
         });
     
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx:any) => {
             // Update match result
             await tx.match.update({
                 where: { id: this.id },
