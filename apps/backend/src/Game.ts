@@ -1,7 +1,7 @@
 import { Chess } from "chess.js";
 import { WebSocket } from "ws";
 import { CHECKMATE, GAME_INITIALIZE, GAME_OVER, INVALID_MOVE, MOVE, START } from "./message";
-import { PrismaClient } from "@workspace/db";
+import { Prisma, PrismaClient } from "@workspace/db";
 import type { User, Move } from "@workspace/types";
 const prisma = new PrismaClient();
 export class Game {
@@ -53,7 +53,7 @@ export class Game {
             select: { id: true }
         });
     
-        await prisma.$transaction(async (tx:any) => {
+        await prisma.$transaction(async (tx:Prisma.TransactionClient) => {
             // Update match result
             await tx.match.update({
                 where: { id: this.id },

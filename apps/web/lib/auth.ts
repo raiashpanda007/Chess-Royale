@@ -1,5 +1,5 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient } from '@workspace/db';
+import { Prisma, PrismaClient } from '@workspace/db';
 const prisma = new PrismaClient();
 import GoogleProvider from "next-auth/providers/google";
 const NEXT_AUTH_CONFIG = {
@@ -83,7 +83,7 @@ const NEXT_AUTH_CONFIG = {
           token.profilePicture = existingUser.profilePicture;
         } else {
           // Create new user and associated account in a transaction
-          const { createUser } = await prisma.$transaction(async (tx) => {
+          const { createUser } = await prisma.$transaction(async (tx:Prisma.TransactionClient) => {
             const createUser = await tx.user.create({
               data: {
                 email: token.email,

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@workspace/db";
+import { Prisma, PrismaClient } from "@workspace/db";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z as zod } from "zod";
@@ -33,7 +33,7 @@ async function joinTournament(req: NextRequest) {
 
     const prisma = new PrismaClient();
     try {
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx:Prisma.TransactionClient) => {
             // Lock the tournament row for updates
             const tournamentDetails = await tx.tournament.findUnique({
                 where: {

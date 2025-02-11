@@ -1,5 +1,5 @@
 import asyncHandler from "../utils/asyncHandler";
-import { PrismaClient } from "@workspace/db";
+import { Prisma, PrismaClient } from "@workspace/db";
 import { PairingAlogrithm, Players } from "@workspace/types";
 import response from "../utils/repsonse";
 import matchMaking from "../services/Match Making/MatchMaking";
@@ -108,7 +108,7 @@ const pairing_algo = asyncHandler(async (req, res) => {
         console.log("Generated Match Pairs:", matchPairs);
 
         // Step 7: Create Rounds and Matches in a Transaction
-        const roundsMatches = await prisma.$transaction(async (tx) => {
+        const roundsMatches = await prisma.$transaction(async (tx:Prisma.TransactionClient) => {
             const round = await tx.round.create({
                 data: {
                     tournamentId: tournament.id,

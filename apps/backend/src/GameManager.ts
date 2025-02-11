@@ -3,7 +3,7 @@ import { ACCEPT_DRAW, DRAW, GAME_INITIALIZE, GAME_OVER, IN_GAME, MOVE, RESIGN, S
 import { Game } from "./Game";
 import { User, Match } from "@workspace/types";
 import RedisClient from "@workspace/queue";
-import { PrismaClient } from "@workspace/db";
+import { Prisma, PrismaClient } from "@workspace/db";
 
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"], // Enable Prisma query logging
@@ -87,7 +87,7 @@ export default class GameHandler {
           // Update the match and start the game
           let newGame;
           try {
-            newGame = await prisma.$transaction(async (tx) => {
+            newGame = await prisma.$transaction(async (tx:Prisma.TransactionClient) => {
               const match = await tx.match.create({
                 data: {
                   player1: {
