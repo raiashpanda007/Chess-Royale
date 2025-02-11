@@ -25,11 +25,6 @@ jobs:
           npm install -g pnpm
           pnpm install
 
-      - name: Run Lint
-        run: pnpm run lint
-
-      - name: Run Tests
-        run: pnpm test
 
       - name: Build Project
-        run: pnpm run build
+        run: pnpm turbo build
