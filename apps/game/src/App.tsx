@@ -127,7 +127,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen bg-black flex font-white relative  font-semibold ">
+    <div className="h-screen bg-black text-white relative font-semibold flex flex-col md:flex-row">
       {gameOver && winnerDetails && (
         <div className="w-full h-full flex justify-center items-center">
           <WinnerCard
@@ -143,8 +143,8 @@ function App() {
         </div>
       )}
       {(!gameOver && !drawRequest) && (
-        <div className="flex w-full h-full">
-          <div className="w-2/3 border h-full flex justify-center items-center">
+        <div className="flex flex-col md:flex-row w-full h-full">
+          <div className="w-full md:w-2/3 border flex justify-center items-center p-4">
             <ChessBoard
               chess={chess}
               setBoard={setBoard}
@@ -155,8 +155,8 @@ function App() {
               gameOver={gameOver}
             />
           </div>
-          <div className="w-1/3 border h-full ">
-            <div className="h-1/6 w-full flex ">
+          <div className="w-full md:w-1/3 border flex flex-col">
+            <div className="flex justify-around items-center p-4">
               <Button
                 variant={"destructive"}
                 onClick={() => resignGame(socket)}
@@ -166,7 +166,7 @@ function App() {
 
               <Button onClick={() => sendDrawRequest(socket)}>Draw</Button>
             </div>
-            <ScrollArea className="h-5/6 w-full overflow-auto"></ScrollArea>
+            <ScrollArea className="flex-1 w-full overflow-auto p-4"></ScrollArea>
           </div>
         </div>
       )}

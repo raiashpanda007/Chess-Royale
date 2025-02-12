@@ -83,7 +83,7 @@ function ChessBoard({
                 return (
                   <div
                     key={j}
-                    className={`w-20 sm:w-24  sm:h-24 h-20 flex justify-center items-center ${
+                    className={`w-12 sm:w-24  sm:h-24 h-12 flex justify-center items-center ${
                       isHighlighted
                         ? "bg-yellow-200 border"
                         : (i + j) % 2

@@ -8,6 +8,17 @@ import { z as zod } from "zod";
 const joinTournamentSchema = zod.object({
     tournamentId: zod.string(),
 });
+interface User {
+        id: string;
+        name: string | null;
+        username: string | null;
+        password: string | null;
+        email: string | null;
+        profilePicture: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+    
+}
 async function joinTournament(req: NextRequest) {
     const curruser = await getServerSession(NEXT_AUTH_CONFIG);
     if (!curruser) {

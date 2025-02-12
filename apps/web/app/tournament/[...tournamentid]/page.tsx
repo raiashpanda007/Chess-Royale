@@ -34,7 +34,6 @@ const Page: FC = () => {
   const [winner, setWinner] = useState<User[] | null>(null);
   const [startRound, setStartRound] = useState<boolean>(false);
 
-  // Fetch tournament details
   const fetchTournament = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -49,7 +48,6 @@ const Page: FC = () => {
     }
   }, [tournamentid]);
 
-  // Start tournament
   const startTournament = async () => {
     try {
       const response = await axios.post(
@@ -68,7 +66,6 @@ const Page: FC = () => {
     }
   };
 
-  // Generate next round
   const generateNextRound = async () => {
     try {
       const newRound = await axios.post(
@@ -90,13 +87,12 @@ const Page: FC = () => {
     }
   };
 
-  // Fetch matches of selected round
   const getRoundMatches = useCallback(async () => {
     if (!round) return;
 
     try {
       const response = await axios.post(
-        `https://web.chesssroyale.games/tournament/fetch/matches`,
+        `http://localhost:3000/tournament/fetch/matches`,
         { roundid: round }
       );
       if (response.data) {
@@ -110,7 +106,6 @@ const Page: FC = () => {
     }
   }, [round]);
 
-  // Effect to check if the tournament has started
   useEffect(() => {
     if (tournament?.status?.toString() === "START") {
       setStartRound(true);
@@ -127,19 +122,18 @@ const Page: FC = () => {
 
   return (
     <div className="h-screen w-full font-poppins">
-      {/* Header Section */}
-      <div className="relative top-16 w-full h-40 flex items-center">
-        {/* Tournament Logo */}
-        <div className="w-1/6 h-36 flex justify-center">
+      <div className="relative top-16 w-full h-auto flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0">
+        <div className="w-full md:w-1/6 h-36 flex justify-center">
           {loading ? (
             <Skeleton className="h-28 w-28 rounded-full" />
           ) : (
-            <img src={tournament?.logo ? tournament.logo : '/tournamentlogo.jpg'} className="h-28 w-28 rounded-full" />
+            <img
+              src={tournament?.logo ? tournament.logo : "/tournamentlogo.jpg"}
+              className="h-28 w-28 rounded-full"
+            />
           )}
         </div>
-
-        {/* Tournament Info */}
-        <div className="w-5/6 h-full space-y-3">
+        <div className="w-full md:w-5/6 h-full space-y-3">
           {loading ? (
             <Skeleton className="h-[40px] w-full rounded-md" />
           ) : (
@@ -150,8 +144,6 @@ const Page: FC = () => {
               )}
             </div>
           )}
-
-          {/* Tournament Details */}
           {loading ? (
             <Skeleton className="h-1/4 w-full rounded-md" />
           ) : (
@@ -170,51 +162,45 @@ const Page: FC = () => {
           )}
         </div>
       </div>
-
-      {/* Tournament Actions */}
       <div className="w-full mt-6 p-3" style={{ height: "calc(100% - 80px)" }}>
-        {/* Slug Copy Section */}
-        <div className="h-24 w-1/3 rounded-lg shadow-md p-3 flex justify-center items-center border">
+        <div className="h-24 w-full md:w-1/3 rounded-lg shadow-md p-3 flex justify-center items-center border">
           <p>{tournament?.slug}</p>
           <CopyButton data={tournament?.slug || ""} />
         </div>
-
-        {/* Round Selection & Controls */}
+        <div className="w-full h-auto md:h-16 flex flex-col md:flex-row justify-between border gap-2 p-2 mt-4">
+          <Select onValueChange={(value) => setRound(value)}>
+            <SelectTrigger className="w-[180px] font-semibold">
+              <SelectValue placeholder="Select Round" />
+            </SelectTrigger>
+            <SelectContent>
+              {tournament?.rounds?.length ? (
+                tournament.rounds.map((r, index) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    Round {index + 1}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="0">Not started</SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+          {tournament?.admin.id === session?.user.id && (
+            <Button className="font-bold" onClick={generateNextRound}>
+              Generate Next Round
+            </Button>
+          )}
+          {!startRound && tournament?.admin.id === session?.user.id && (
+            <Button className="font-bold" onClick={startTournament}>
+              Start Tournament
+            </Button>
+          )}
+        </div>
         <div className="w-full h-full p-3 flex flex-col items-center">
-          <div className="w-full h-16 flex justify-between border">
-            {/* Round Selection (Visible to Everyone) */}
-            <Select onValueChange={(value) => setRound(value)}>
-              <SelectTrigger className="w-[180px] font-semibold">
-                <SelectValue placeholder="Select Round" />
-              </SelectTrigger>
-              <SelectContent>
-                {tournament?.rounds?.length ? (
-                  tournament.rounds.map((r, index) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      Round {index + 1}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="0">Not started</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-
-            {tournament?.admin.id === session?.user.id && (
-              <Button className="font-bold" onClick={generateNextRound}>
-                Generate Next Round
-              </Button>
-            )}
-
-            {!startRound && tournament?.admin.id === session?.user.id && (
-              <Button className="font-bold" onClick={startTournament}>
-                Start Tournament
-              </Button>
-            )}
-          </div>
-
-          {/* Matches List */}
-          <TabsDemo matches={matches} winner={winner} tournamentid={tournament?.id} />
+          <TabsDemo
+            matches={matches}
+            winner={winner}
+            tournamentid={tournament?.id}
+          />
         </div>
       </div>
     </div>

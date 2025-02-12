@@ -15,7 +15,7 @@ function page() {
     const fetchTournaments = async () => {
       try {
         const res = await axios.get(
-          `https://web.chesssroyale.games/api/tournament/list`
+          `http://localhost:3000/api/tournament/list`
         );
         setTournaments(res.data.data);
       } catch (error) {
