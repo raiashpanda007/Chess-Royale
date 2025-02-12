@@ -88,7 +88,7 @@ function ChessBoard({
                         ? "bg-yellow-200 border"
                         : (i + j) % 2
                           ? "bg-green-800"
-                          : "bg-white" 
+                          : "bg-white"
                     }`}
                     onClick={async () => {
                       if (!from) {
