@@ -176,7 +176,7 @@ export default class GameHandler {
         this.socketsMap.delete(player1.user.id);
         this.socketsMap.delete(player2.user.id);
       }
-    }
+  }
 
     // If one player is still waiting, let them know they're still in the queue.
     if (this.pendingQueue.length === 1) {

@@ -1,14 +1,10 @@
-interface User {
-  username: string;
-  profilePicture: string;
-  id: string;
-}
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import ChessBoard from "./components/ChessBoard";
 import { Button } from "@workspace/ui/components/button";
 import useSocket from "./hooks/useSocket";
 import { Chess } from "chess.js";
+import Promotion from "./components/Promotion";
 import {
   DRAW,
   MATCH_MAKING,
@@ -16,9 +12,16 @@ import {
   RESIGN,
   SENDING_DRAW,
 } from "./types/messagetypes";
-import Promotion from "./components/Promotion";
 import WinnerCard from "./components/Winner";
 import DrawRequest from "./components/DrawRequest";
+
+// You might already have this interface defined elsewhere.
+interface User {
+  username: string;
+  profilePicture: string;
+  id: string;
+}
+
 const resignGame = async (socket: WebSocket | null) => {
   if (!socket) return <div>Socket is connected</div>;
   socket.send(
@@ -27,6 +30,7 @@ const resignGame = async (socket: WebSocket | null) => {
     })
   );
 };
+
 const sendDrawRequest = async (socket: WebSocket | null) => {
   if (!socket) return <div>Socket is connected</div>;
   socket.send(
@@ -36,14 +40,15 @@ const sendDrawRequest = async (socket: WebSocket | null) => {
     })
   );
 };
+
 function App() {
   const GAME_INITIALIZE = "game_init";
   const MOVE = "move";
   const GAME_OVER = "game_over";
 
-  const [chess, setChess] = useState(() => new Chess()); // Initialize once
+  const [chess, setChess] = useState(() => new Chess());
   const [board, setBoard] = useState(chess.board());
-  const [socketReady, setSocketReady] = useState(false); // Track socket readiness
+  const [socketReady, setSocketReady] = useState(false);
   const [time, setTime] = useState<number>(10);
   const [addedTime, setAddedTime] = useState<number | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
@@ -54,7 +59,8 @@ function App() {
     draw: boolean | null;
   } | null>(null);
   const [drawRequest, setDrawRequest] = useState<boolean>(false);
-  // Ensure hooks aren't conditionally rendered
+
+  // IMPORTANT: Remove "chess" from the dependency array so this effect runs only once per socket change.
   useEffect(() => {
     if (!socket) return;
 
@@ -86,14 +92,11 @@ function App() {
           setTime(message.payload.game.time);
           setAddedTime(message.payload.game.AddedTime);
           break;
-
         case MOVE:
-          const move = message.payload; // Apply the move
-          chess.move(move); // Update state
-          setBoard(chess.board()); // Sync the board
-
+          const move = message.payload;
+          chess.move(move);
+          setBoard(chess.board());
           break;
-
         case GAME_OVER:
           console.log("Game over");
           setGameOver(true);
@@ -102,9 +105,10 @@ function App() {
             method: message.payload.method,
             draw: message.payload.draw,
           });
-
           break;
         case PROMOTION:
+          // Handle promotion appropriately here.
+          // For example, you might want to show a promotion modal.
           <Promotion socket={socket} />;
           break;
         case DRAW:
@@ -127,7 +131,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen bg-black text-white relative font-semibold flex flex-col md:flex-row">
+    <div className="h-screen bg-black text-white relative font-semibold flex flex-col md:flex-row relative">
       {gameOver && winnerDetails && (
         <div className="w-full h-full flex justify-center items-center">
           <WinnerCard
@@ -137,14 +141,20 @@ function App() {
           />
         </div>
       )}
-      {drawRequest && (
-        <div className="h flex h-full w-full items-center justify-center relative  font-semibold">
-          <DrawRequest socket={socket} setDrawRequest={setDrawRequest} />
-        </div>
-      )}
-      {(!gameOver && !drawRequest) && (
+
+      <div
+        className={
+          drawRequest
+            ? "absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"
+            : "hidden"
+        }
+      >
+        <DrawRequest socket={socket} setDrawRequest={setDrawRequest} />
+      </div>
+
+      {!gameOver && (
         <div className="flex flex-col md:flex-row w-full h-full">
-          <div className="w-full md:w-2/3 border flex justify-center items-center p-4">
+          <div className="mx-auto w-full max-w-md md:max-w-sm lg:max-w-xs">
             <ChessBoard
               chess={chess}
               setBoard={setBoard}
@@ -163,10 +173,9 @@ function App() {
               >
                 Resign
               </Button>
-
               <Button onClick={() => sendDrawRequest(socket)}>Draw</Button>
             </div>
-            <ScrollArea className="flex-1 w-full overflow-auto p-4"></ScrollArea>
+            <ScrollArea className="flex-1 w-full overflow-auto p-4" />
           </div>
         </div>
       )}
