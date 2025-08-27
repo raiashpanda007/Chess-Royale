@@ -16,59 +16,6 @@ services:
     ports:
       - "6379:6379"
     
-  backend:
-    build: ./apps/backend
-    container_name: backend_container
-    depends_on:
-      - db
-      - redis
-    ports:
-      - "8080:8080"
-    environment:
-      DATABASE_URL: postgresql://admin:admin@db:5432/chessdb
-      REDIS_URL: redis://redis:6379
-    restart: unless-stopped
-    
-  backend2:
-    build: ./apps/backend2
-    container_name: backend2_container
-    depends_on:
-      - db
-      - redis
-    ports:
-      - "3001:3001"
-    environment:
-      DATABASE_URL: postgresql://admin:admin@db:5432/chessdb
-      REDIS_URL: redis://redis:6379
-    restart: unless-stopped
-
-  web:
-    build: ./apps/web
-    container_name: web_container
-    depends_on:
-      - backend
-      - backend2
-    environment:
-      NEXT_PUBLIC_BASE_URL: http://localhost
-      AWS_ACCESS_KEY_ID: your-access-key-id
-      AWS_SECRET_ACCESS_KEY: your-secret-access-key
-      AWS_S3_BUCKET_NAME: your-bucket-name
-      AWS_REGION: your-bucket-region
-      GOOGLE_CLIENT_ID: your-google-client-id
-      GOOGLE_CLIENT_SECRET: your-google-client-secret
-      NEXTAUTH_URL: http://localhost:3000 # change in production
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-  game:
-    build: ./apps/game
-    container_name: game_container
-    depends_on:
-      - backend
-      - backend2
-    ports:
-      - "5173:5173"
-    restart: unless-stopped  
 
     
 

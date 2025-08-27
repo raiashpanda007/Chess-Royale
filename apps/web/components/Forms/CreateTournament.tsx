@@ -38,9 +38,11 @@ const CreateTournamentForm: FC = () => {
         if (uploadResponse.data) {
           logoKey = uploadResponse.data.data.key;
 
-          await axios.put(uploadResponse.data.data.url, data.logo[0], {
+          const image = await axios.put(uploadResponse.data.data.url, data.logo[0], {
             headers: { "Content-Type": data.logo[0].type },
           });
+          
+          console.log("Image upload response:", image);
         }
       }
 
